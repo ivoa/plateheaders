@@ -21,11 +21,21 @@
 % origin: https://www.plate-archive.org/applause/wiki/fits-header-format-dr2/
 % \previousversion[????URL????]{????Concise Document Label????}
 \previousversion{This is the first public release}
-       
+
+\newenvironment{fitsexample}[1]
+{\bigskip\noindent\textbf{Example}\\\textit{(#1\smallskip)}}
+{\medskip}
 
 \begin{document}
 \begin{abstract}
-???? Abstract ????
+This note describes a set of FITS headers designed on the basis of both
+the Wide Field Plate Database WFPDB and various previous efforts to
+document scans of historical glass plates with a view to facilitating
+later scientific use.  While it was being developed together with
+annotation software (plate2011) and a specific digitisation project
+(applause), we hope it is general enough to serve as a lingua franca for
+scanned glass plates.
+
 \end{abstract}
 
 
@@ -101,7 +111,7 @@ Lowercase n and i in keyword names denote numbering: for example, RAn
 becomes RA1, RA2, RA3, etc. Numbers in keywords are not padded with
 zeros.
 
-\subsection{Group 1 -- mandatory and array-description keywords}
+\subsection{Group 1 -- Mandatory and Array Description Keywords}
 
 \begin{inlinetable}
 \footnotesize
@@ -135,8 +145,7 @@ EXTEND → omit
 
 BZERO = 65536 → 32768
 
-Example:
-
+\begin{fitsexample}{Array description keywords}
 \begin{lstlisting}
 SIMPLE  =                    T / file conforms to FITS standard
 BITPIX  =                   16 / number of bits per data pixel
@@ -147,9 +156,9 @@ BSCALE  =                  1.0 / physical_value = BZERO + BSCALE * array_value
 BZERO   =                32768 / physical_value = BZERO + BSCALE * array_value
 END
 \end{lstlisting}
+\end{fitsexample}
 
-
-\subsection{Group 2 -- original data of the observation}
+\subsection{Group 2 -- Original Data of the Observation}
 
 This group of keyword records provides the original information about
 the observation, as described in the observation logbook and other
@@ -265,8 +274,8 @@ of all sub-exposures can be given with the EXPTIMn keywords, where n is
 the exposure number in the range 1…99. The EXPTIME and EXPTIM1 keywords
 have the same value.
 
-Example:
 
+\begin{fitsexample}{Observation data, multiple exposures}
 \begin{lstlisting}
 EXPTIME =                600.0 / [s] exposure time (of exposure 1)
 NUMEXP  =                    3 / number of exposures of the plate
@@ -274,13 +283,14 @@ EXPTIM1 =                600.0 / [s] exposure time of exposure 1
 EXPTIM2 =                 60.0 / [s] exposure time of exposure 2
 EXPTIM3 =                  2.0 / [s] exposure time of exposure 3
 \end{lstlisting}
+\end{fitsexample}
 
-In case of a single exposure, EXPTIM1 keyword is omitted:
-
+\begin{fitsexample}{Observation data, single exposure}
 \begin{lstlisting}
 EXPTIME =               1800.0 / [s] exposure time (of exposure 1)
 NUMEXP  =                    1 / number of exposures of the plate
 \end{lstlisting}
+\end{fitsexample}
 
 SITELONG and SITELAT are expressed in decimal degrees (rather than a
 sexagesimal character string).
@@ -315,8 +325,7 @@ new keyword GRATING
 
 new keywords TEMPERAT, SEEING, SHARPNES, TRANSPAR, SKYCOND, OBSNOTES, and NOTES
 
-Example:
-
+\begin{fitsexample}{Observation data, full header}
 \begin{lstlisting}
         --------------------------------------- Original data of the observation
 DATEORIG= '1910-08-02'         / recorded date of the observation
@@ -357,9 +366,9 @@ OBSERVER= 'W. Muench'          / observer name
 OBSNOTES= 'bad guiding'        / observer notes
 NOTES   = 'SA 87 = Kapteyn Selected Area 87' / miscellaneous notes
 \end{lstlisting}
+\end{fitsexample}
 
-Example 2 (multiple time notations):
-
+\begin{fitsexample}{Observation data, multiple time systems}
 \begin{lstlisting}
         --------------------------------------- Original data of the observation
 DATEORIG= '1964-01-02'         / recorded date of the observation
@@ -369,8 +378,10 @@ TIMEFLAG= '        '           / quality of the recorded time
 EXPTIME =               3600.0 / [s] exposure time (of exposure 1)
 NUMEXP  =                    1 / number of exposures of the plate
 \end{lstlisting}
+\end{fitsexample}
 
-Example 3 (multiple exposures):
+
+\begin{fitsexample}{Full header for multiple exposures}
 
 \begin{lstlisting}
         --------------------------------------- Original data of the observation
@@ -419,8 +430,9 @@ OBSERVER= 'W. Muench'          / observer name
 OBSNOTES= 'poor transparency'  / observer notes
 NOTES   = '        '           / miscellaneous notes
 \end{lstlisting}
+\end{fitsexample}
 
-\subsection{Group 3 – information about the photographic plate}
+\subsection{Group 3 – Information about the Photographic Plate}
 
 \begin{inlinetable}
 \footnotesize
@@ -468,8 +480,7 @@ COLOR → omit
 new keyword PLATNOTE
 
 
-Example:
-
+\begin{fitsexample}{Plate metadata}
 \begin{lstlisting}
         ----------------------------------------------------- Photographic plate
 PLATENUM= '317     '           / plate number in original observation catalogue
@@ -485,8 +496,9 @@ DEVELOP = '        '           / plate development information
 PQUALITY= 'broken  '           / quality of plate
 PLATNOTE= 'contact copy of original plate that is not available' / plate notes
 \end{lstlisting}
+\end{fitsexample}
 
-\subsection{Group 4 – computed data of the observation}
+\subsection{Group 4 – Computed Data For the Observation}
 
 In this group of keyword records, we provide data of the observation
 that are computed on the basis of the original data.
@@ -588,8 +600,8 @@ numbered keywords for multiple exposures
 
 EQUINOX → if necessary, specify with the WCS keywords
 
-Example:
 
+\begin{fitsexample}{Computed metadata, single exposure}
 \begin{lstlisting}
         --------------------------------------- Computed data of the observation
 DATE-OBS= '1910-08-02T22:21:01' / UT date of the start of the observation
@@ -605,9 +617,10 @@ DEC     = '+15:13:20'          / declination of pointing (J2000) "d:m:s"
 RA_DEG  =           288.950000 / [deg] right ascension of pointing (J2000)
 DEC_DEG =            15.222222 / [deg] declination of pointing (J2000)
 \end{lstlisting}
+\end{fitsexample}
 
-Example 2:
 
+\begin{fitsexample}{Computed metadata, multiple exposures}
 \begin{lstlisting}
         --------------------------------------- Computed data of the observation
 DATE-OBS= '1934-01-25T20:36:56' / UT date of the start of exposure 1
@@ -651,9 +664,10 @@ DEC     = '        '           / declination of pointing (J2000) "d:m:s"
 RA_DEG  =                      / [deg] right ascension of pointing (J2000)
 DEC_DEG =                      / [deg] declination of pointing (J2000)
 \end{lstlisting}
+\end{fitsexample}
 
 
-\subsection{Group 5 – scan details}
+\subsection{Group 5 – Scan Details}
 
 This group contains information about scanner hardware and software
 settings, also the name of the scan author and the date of the scan.
@@ -716,10 +730,10 @@ AUTHOR → SCANAUTH
 
 REFERENC → COMMENT
 
-Example:
 
+\begin{fitsexample}{Scanning metadata}
 \begin{lstlisting}
-        ------------------------------------------------------------------- Scan
+        ----------------------------------------------- Scan Details
 SCANNER = 'Epson Expression 10000XL' / scanner name
 SCANRES1=                 2400 / [dpi] scan resolution along axis 1
 SCANRES2=                 2400 / [dpi] scan resolution along axis 2
@@ -732,9 +746,10 @@ WEDGE   = 'Danes-Picta TG21S'  / type of photometric step-wedge
 DATESCAN= '2011-05-17T10:33:26' / scan date and time
 SCANAUTH= 'K. Tsvetkova'       / author of scan
 \end{lstlisting}
+\end{fitsexample}
 
 
-\subsection{Group 6 – data files}
+\subsection{Group 6 – Data Files}
 
 \begin{inlinetable}
 \footnotesize
@@ -767,8 +782,8 @@ new keywords FN-SCNi, FN-WEDGE, FN-PRE, FN-COVER, FN-LOGB, and FN-NTBi
 
 URL → omit
 
-Example:
 
+\begin{fitsexample}{Associated files}
 \begin{lstlisting}
         ------------------------------------------------------------- Data files
 FILENAME= 'POT015_000317.fits' / filename of this file
@@ -779,10 +794,11 @@ FN-LOGB = 'POT015_000317-000334.jpg' / filename of logbook image
 ORIGIN  = 'Leibniz-Institut fuer Astrophysik Potsdam (AIP)'
 DATE    = '2013-04-09T12:00:00' / last change of this file
 \end{lstlisting}
+\end{fitsexample}
 
 
-Example 2:
 
+\begin{fitsexample}{Associated files, multiple notebook pages}
 \begin{lstlisting}
         ------------------------------------------------------------- Data files
 FILENAME= 'LA00508x.fits'      / filename of this file
@@ -801,6 +817,7 @@ FN-NTB6 = 'LA-LB04-1916-10-18f.jpg' / filename of notebook image 6
 ORIGIN  = 'Hamburger Sternwarte' /
 DATE    = '2013-12-12T13:42:00' / last change of this file
 \end{lstlisting}
+\end{fitsexample}
 
 \subsection{Group 7 – World Coordinate System (WCS)}
 
@@ -815,8 +832,8 @@ scan, the WCS keywords can be used to provide the approximate
 coordinates, based on the plate scale and the precessed coordinates of
 the original telescope pointing.
 
-Example:
 
+\begin{fitsexample}{WCS}
 \begin{lstlisting}
         -------------- World Coordinate System (WCS)
 WCSAXES = 2 / number of axes in the WCS description
@@ -836,6 +853,7 @@ CD2_1 = 0.0 / transformation matrix
 CD2_2 = 0.0004047524 / transformation matrix
 LONPOLE = 0.0 / native longitude of the celestial pole
 \end{lstlisting}
+\end{fitsexample}
 
 
 \subsection{Group 8 – modification history and acknowledgements}
@@ -844,8 +862,8 @@ Modification history is given with the HISTORY keyword.
 
 Comments and acknowledgements are given with the COMMENT keyword.
 
-Example:
 
+\begin{fitsexample}{Header Metadata}
 \begin{lstlisting}
         --------------------------------------------------- Modification history
 HISTORY Header written with PyPlates at 2013-12-18T12:00:00
@@ -867,6 +885,7 @@ COMMENT Potsdam-Telegrafenberg in 1910-1933. The project of plate digitization
 COMMENT was funded by the grants of the German Research Foundation (DFG) and the
 COMMENT Bulgarian Ministry of Education and Science.
 \end{lstlisting}
+\end{fitsexample}
 
 
 \section{Complete sample header}
