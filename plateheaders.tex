@@ -6,12 +6,15 @@
 \lstset{basicstyle=\ttfamily\footnotesize,flexiblecolumns=True}
 \usepackage{todonotes}
 
+\definecolor{keyword}{rgb}{0.118,0.2,0.618}
+\newcommand\cardname[1]{\texttt{\color{keyword}#1}}
+
 \title{FITS Headers for Scans of Glass Plates}
 
 \ivoagroup{Data Model}
 
-\author{Tuvikene, S.}
 \author{Demleitner, M.}
+\author{Tuvikene, T.}
 \author{Schmalz, S.}
 \author{Enke, H.}
 \author{Partl, A.}
@@ -28,11 +31,13 @@
 
 \begin{document}
 \begin{abstract}
-This note describes a set of FITS headers designed on the basis of both
-the Wide Field Plate Database WFPDB and various previous efforts to
-document scans of historical glass plates with a view to facilitating
-later scientific use.  While it was being developed together with
-annotation software (plate2011) and a specific digitisation project
+This note describes a FITS header structure suitable for the annotation
+of scans of photographic plates containing sky images intended for
+scientific use.  This metadata structure is general enough to cover
+several observational techniques common in the plate area, such as
+multiply exposed plates or objective prism spectroscopy.  While this
+metadata structure was being developed together with annotation software
+(plate2011, later pyplates) and a specific digitisation project
 (applause), we hope it is general enough to serve as a lingua franca for
 scanned glass plates.
 
@@ -56,39 +61,48 @@ infrastructure that enable VO applications.
 
 \section{Introduction}
 
-This document  proposes FITS header keywords, value types and overall
-layout for storing metadata of digitized astronomical photographic
-plates. The header format is intended to suit various cases: direct
-images with single exposures, multiple exposures of a single
-object/field, exposures of different objects/fields, objective-prism
-spectra, etc.
+This document  proposes FITS \citep{std:FITS} header keywords, value
+types and an overall layout for storing metadata of digitized
+astronomical photographic plates. The header format is intended to suit
+various cases: direct images with single exposures, multiple exposures
+of a single object/field, exposures of different objects/fields,
+objective-prism spectra, etc.
 
-A FITS header format for astronomical photographic plates has been
-proposed by \citet{2012PASRB..11..147K},\todo{That's probably not the
-paper: Can we get it into ADS? Or can we emancipate a bit from that?}
-hereafter Paper I. The introduced FITS keywords have been implemented in
-the header2011 software \citep{soft:header2011}\todo{Can we put this
-into the ASCL?  That would give us a nice record} that creates headers
-for inclusion in the FITS files of scanned plates. The header2011
-software is tightly related with the Wide-Field Plate Database (WFPDB),
-as the software uses the WFPDB files\todo{is this still true?  Is
-someone still collecting and ingesting these files?} as a source of
-plate metadata.
+The goals of the present work is to 
 
-In this document, we propose a refinement to the header format of Paper
-I, closely following the FITS Standard, \citep{std:FITS}, where this
-specification was originally written against version 3.0. The
-modifications are described in Section~\ref{sect:format}, a complete
-sample header is shown in Section~\ref{sect:samplehdr}, and a sample
-header created with the header2011 software is given in
-Section~\ref{sect:platehdr}.
+\begin{itemize}
+\item facilitate writing software for automatically processing such data
+given the constraints of the historical material,
+
+\item aid data providers in selecting useful and relevant metadata to
+add to their scans,
+
+\item provide researchers with easily-inspectable information not only
+on the image itself, but also on its provenance.
+\end{itemize}
+
+The present work has greatly benefited from the Wide-Field Plate
+Database WFPDB \citep{1995LNP...454..412T}, which informed many of the
+design choices made here.  However, this effort is independent of the
+WFPDB as such.
+
+While conformant FITS headers can be written with generic FITS software,
+higher-level interfaces have been written, in particular in the pyplate
+software for calibrating and annotating scans of astronomical plates
+\citep{soft:pyplates}, but also in the general Virtual Observatory
+server suite DaCHS \citep{2014A+C.....7...27D}.
+
+This specification's core is Section~\ref{sect:format}, which describes
+the various groups contributing to a full description of a scanned
+plate's metadata.  A complete
+sample header is shown in Section~\ref{sect:samplehdr}.
 
 \section{FITS header format}
 \label{sect:format}
 
-For better readability of headers, we propose organizing keyword records
-into groups of related keywords and separating the groups with keywords
-that have a blank name:
+For better readability of the header, we organise keyword records
+into groups of related keywords and separate these groups with
+cards that have a blank keyword:
 
 \begin{lstlisting}
 KEYWORD1= 'value   '           / sample keyword
@@ -104,46 +118,63 @@ KEYWORD7= 'value   '           / sample keyword
 KEYWORD8= 'value   '           / sample keyword
 \end{lstlisting}
 
-In the next subsections we denote the omitted and missing keywords with
-a hyphen (-).
+An italic $n$ in header keywords denotes numbering, where $n$
+can range between 1 and 99.  \cardname{RA$n$} will thus expand to
+keywords \cardname{RA1}, \cardname{RA2}, \cardname{RA3}, etc. Numbers in
+keywords are not padded with zeros.
 
-Lowercase n and i in keyword names denote numbering: for example, RAn
-becomes RA1, RA2, RA3, etc. Numbers in keywords are not padded with
-zeros.
+All headers defined here are optional in the sense that a header without
+them still conforms to this specification.  In particular, not even the
+group headers are mandatory.  However, \emph{if} a header card is present
+with a certain keyword defined here, that card must conform to the
+syntax and semantics defined here to be compliant.
 
-\subsection{Group 1 -- Mandatory and Array Description Keywords}
+In addition to the requirements and recommendations given here, all
+constraints resulting from the various standard documents on FITS apply.
+
+This specification does not use the FITS convention on long
+keywords\todo{ref?}.  However, FITS continuation lines are explicitly
+allowed (and encouraged for some of the free text fields).  This should
+no longer cause interoperability problems with FITS libraries in actual
+use in 2022.
+
+Writers should in general not write cards with empty values.  Readers,
+however, should be prepared to see all-blank strings being used as null
+values, as many files have been written assuming such a convention.
+
+At this point, writers are encouraged to write uncompressed FITS files
+for interoperability, in which case the header described here will be
+the header of the primary HDU.  We do, however, envisage the use of
+compressed FITS images.  In this case, the header structure discussed
+here would be found in the header of the second HDU.
+
+
+\subsection{Group 1 -- Basic FITS and Array Description Keywords}
+
+This group contains the minimal keywords necessary to interpret the
+HDU's data section as a pixel array.
 
 \begin{inlinetable}
 \footnotesize
-\begin{tabular}{lllp{0.5\textwidth}}
+\begin{tabular}{llp{0.6\textwidth}}
 \sptablerule
-\textbf{Keyword}&\textbf{Paper I}&\textbf{Type}&\textbf{Description}\\
+\textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
-SIMPLE     &SIMPLE     &logical     &(FITS Standard) File conforms to FITS
-Standard.\\
-BITPIX     &BITPIX     &integer     &(FITS Standard) Number of bits per data
-pixel.\\
-NAXIS     &NAXIS      &integer     &(FITS Standard) Number of data axes.\\
-NAXIS1     &NAXIS1     &integer     &(FITS Standard) Length of data axis 1
+SIMPLE     &logical     &(FITS Standard) File conforms to FITS Standard.\\
+BITPIX     &integer     &(FITS Standard) Number of bits per data pixel.\\
+NAXIS      &integer     &(FITS Standard) Number of data axes.\\
+NAXIS1     &integer     &(FITS Standard) Length of data axis 1
 (number of pixels in a row).\\
-NAXIS2     &NAXIS2     &integer     &(FITS Standard) Length of data axis 2
+NAXIS2     &integer     &(FITS Standard) Length of data axis 2
 (number of rows).\\
-BSCALE     &BSCALE     &float             &(FITS Standard) For unsigned 16-bit
-integer data, the value should be 1.0.\\
-BZERO     &BZERO     &integer     &(FITS Standard) For unsigned 16-bit integer
-data, the value should be 32768.\\
--     &EXTEND     &logical     &Not required by FITS Standard, even if the FITS
-    file does contain extensions.\\
-END     &END     &no value     &(FITS Standard) Marks the end of the
-header.\\
+BSCALE     &float             &(FITS Standard) Scaling factor to apply
+to values in the pixel array\\
+BZERO      &integer     &(FITS Standard) Offset to add to values in the
+pixel array\\
 \end{tabular}
 \end{inlinetable}
 
-Main differences with Paper I:
-
-EXTEND → omit
-
-BZERO = 65536 → 32768
+For unsigned 16-bit integer data, set BSCALE=1.0 and BZERO=32768.
 
 \begin{fitsexample}{Array description keywords}
 \begin{lstlisting}
@@ -154,126 +185,183 @@ NAXIS1  =                18904 / length of data axis 1
 NAXIS2  =                18904 / length of data axis 2
 BSCALE  =                  1.0 / physical_value = BZERO + BSCALE * array_value
 BZERO   =                32768 / physical_value = BZERO + BSCALE * array_value
-END
 \end{lstlisting}
 \end{fitsexample}
 
 \subsection{Group 2 -- Original Data of the Observation}
 
-This group of keyword records provides the original information about
-the observation, as described in the observation logbook and other
+This group captures the original information about
+the observation, as obtained from observation logbooks or similar
 sources.
+
+Most of the values in this section are not intended to be (fully)
+machine-readable.  This is partly because we could not hope to give a
+conclusive and useful vocabulary of, say, filters used over the 100 years
+astronomical plates were taken in.  It is also because most of
+this information will only be necessary when following an individual
+plate's provenance; in that case, the information will be consumed by a
+human anyway.
+
+Even so, data providers are urged to be at least internally consistent
+with observer names or the designations of filters, instruments, or time
+systems.  Nonetheless, several pieces of metadata important for automatic
+processing in many interesting use cases are present here, too, for
+instance, \cardname{SITELONG}, \cardname{SITELAT}, and
+\cardname{SITELEV}.  Their operational importance is also
+the reason why they are given in decimal degrees (rather than, say, a
+sexagesimal character string that you will probably find in the
+historical documents).
+
 
 \begingroup
 \footnotesize
-\begin{longtable}{lllp{0.5\textwidth}}
+\begin{longtable}{llp{0.6\textwidth}}
 \sptablerule
-\textbf{Keyword}&\textbf{Paper
-I}&\textbf{Type}&\textbf{Description}\\
+\textbf{Keyword}&
+\textbf{Type}&\textbf{Description}\\
 \sptablerule
 \endhead
-DATEORIG  &-        &string  &
+DATEORIG  &string  &
   Original recorded date of the observation (evening date)\\
-TMS-ORIG  &ST       &string  &
-  Original recorded time of the start of the observation (format ``TZ
-  hh:mm:ss'', where TZ is time zone). Time zone can be 'ST' (sidereal
-  time), 'UT' (universal time), or any time zone.  Multiple time
-  notations are separated with commas (e.g. 'UT 18:13, ST 02:44').\\
-TME-ORIG  &-        &string  &
-  Original recorded time of the end of the observation. See TMS-ORIG for details.\\
-TIMEFLAG  &-        &string  &
-  Quality flag of the recorded observation time: 'error', 'missing', 'uncertain'.\\
-RA-ORIG   &RAEPOBS  &string  &
+TMS-ORIG  &string  &
+  Original recorded time of the start of the observation\\
+TME-ORIG  &string  &
+  Original recorded time of the end of the observation.\\
+TIMEFLAG  &string  &
+  Quality flag of the recorded observation time: 'error', 'missing',
+  'uncertain'.  Do not give for good times.\\
+RA-ORIG   &string  &
   Original recorded right ascension of the telescope pointing (plate center)\\
-DEC-ORIG  &DECEPOBS &string  &
+DEC-ORIG  &string  &
   Original recorded declination of the telescope pointing (plate center)\\
-COORFLAG  &-        &string  &
+COORFLAG  &string  &
   Quality flag of the recorded coordinates (right ascension and
-  declination): 'error', 'missing', 'uncertain'.\\
-OBJECT    &OBJECT FIELD &string &
-  (FITS Standard) Name of the observed object or field. If there are
-  more than one field observed, then the value shall be 'multiple' and
-  individual names shall be given with the OBJECTn keywords.\\
-OBJTYPE   &-        &string  &
-  Object type (literal text), as listed in the WFPDB\\
-EXPTIME   &EXPTIME  &float   &
+  declination): 'error', 'missing', 'uncertain'.  Do not give for good
+  positions.\\
+OBJECT    &string &
+  (FITS Standard) Name of the target object or field of the
+  observations.  When the observation had multiple targets, put
+  'multiple' here give a
+  individual target names in OBJECTn cards.\\
+OBJTYPE   &string  &
+  Target object type (literal text); controlled vocabulary, see below\\
+EXPTIME   &float   &
   Exposure time of the first exposure, expressed in seconds\\
-NUMEXP    &MULTIEXP &integer &Number of exposures\\
-DATEORn   &-        &string  &
-  Original recorded date of the n-th exposure (n = 1…99), if exposures
-  were made on multiple nights. Not used, when all exposures are from
+NUMEXP    &integer &Number of exposures\\
+DATEOR$n$ &string  &
+  Original recorded date of the n-th exposure if exposures
+  were made on multiple nights. Not used when all exposures are from
   one night, given by DATEORIG.\\
-TMS-ORn   &-        &string  &
-  Original recorded time of the start of the n-th exposure (n = 1…99). See TMS-ORIG for details.\\
-TME-ORn   &-        &string  &
-  Original recorded time of the end of the n-th exposure (n = 1…99). See TMS-ORIG for details.\\
-RA-ORn    &-        &string  &
+TMS-OR$n$ &string  &
+  Original recorded time of the start of the n-th exposure.\\
+TME-OR$n$ &string  &
+  Original recorded time of the end of the n-th exposure.\\
+RA-OR$n$  &string  &
   Original right ascension of the telescope pointing during the n-th
-  exposure (n = 1…99). Not used, if only one pointing was used.\\
-DEC-ORn   &-        &string   &
+  exposure. Not used if only one pointing was used.\\
+DEC-OR$n$ &string   &
   Original declination of the telescope pointing during the n-th
-  exposure (n = 1…99). Not used, if only one pointing was used.\\
-OBJECTn   &-        &string  &
-    Object (field) name on the n-th exposure (n = 1…99). Not used, if only
+  exposure. Not used if only one pointing was used.\\
+OBJECT$n$ &string  &
+    Object (field) name on the n-th exposure. Not used if only
     one object (field) was observed.\\
-OBJTYPn   &-        &string  &Object type that corresponds to OBJECTn (n
-= 1…99)\\
-EXPTIMn   &-        &float   & Exposure time of the n-th exposure (n = 1…99)\\
-OBSERVAT  &OBSERVAT &string  &Observatory name\\
-SITENAME  &-        &string  &
+OBJTYP$n$ &string  &Object type that corresponds to
+OBJECT$n$; see OBJTYPE\\
+EXPTIM$n$ &float   & Exposure time of the n-th exposure\\
+OBSERVAT  &string  &Observatory name\\
+SITENAME  &string  &
   Observatory site name. Useful if the observatory has more than one
   observing site.\\
-SITELONG  &SITELONG &float   &
+SITELONG  &float   &
   East longitude of the observing site, in decimal degrees\\
-SITELAT   &SITELAT  &float   &
+SITELAT   &float   &
   Latitude of the observing site, in decimal degrees\\
-SITEELEV  &SITEALTI &float   &
-  Elevation of the observatory site [m].  Keyword SITEELEV is more
-  widely used than SITEALTI.\\
-TELESCOP  &TELESCOP &string  &(FITS Standard) Telescope name\\
-TELAPER   &TELAPER  &float   &Clear aperture of the telescope [m]\\
-TELFOC    &TELFOC   &float   &Focal length of the telescope [m]\\
-TELSCALE  &TELSCALE &float   &Plate scale of the telescope [arcsec/mm]\\
-INSTRUME  &INSTRUME &string  &(FITS Standard) Instrument name\\
-DETNAM    &DETNAM   &string  &Detector name: 'photographic plate'\\
-METHOD    &-        &string  &
-  Observation method (literal text). A list of possible values is given
-  in the WFPDB.\\
-FILTER    &FILTER   &string  &Filter type\\
-PRISM     &-        &string  &
-  Information about the objective prism used\\
-PRISMANG  &PRIZMANG &string  &
-  Angle of the objective prism (format "deg:min")\\
-DISPERS   &DISPERS  &float   &Dispersion [Angstrom/mm]\\
-GRATING   &-        &string  &Information about the grating used\\
-FOCUS     &-        &float   &
-  Focus value (from logbook). Used when a single value is given in the
-  logs.\\
-FOCUSn    &-        &float   &
-  Focus value of the n-th exposure ($n = 1\cdots 99$)\\
-TEMPERAT  &-        &float   &Air temperature (from logbook).\\
-CALMNESS  &-        &string  &
-  Calmness (seeing conditions), scale 1–5 (German: Ruhe)\\
-SHARPNES  &-        &string  &Sharpness, scale 1–5 (German: Schärfe)\\
-TRANSPAR  &-        &string  &
-  Transparency, scale 1–5 (German: Durchsicht, Klarheit)\\
-SKYCOND   &-        &string  &Notes on sky conditions (from logbook)\\
-OBSERVER  &OBSERVER &string  &(FITS Standard) Observer name\\
-OBSNOTES  &-        &string  &Observer notes (from logbook)\\
-NOTES     &-        &string  &Miscellaneous notes \\
-
+SITEELEV  &float   &
+  Elevation of the observatory site [m]\\
+TELESCOP  &string  &(FITS Standard) Telescope name\\
+TELAPER   &float   &Clear aperture of the telescope [m]\\
+TELFOC    &float   &Focal length of the telescope [m]\\
+TELSCALE  &float   &Plate scale of the telescope [arcsec/mm]\\
+INSTRUME  &string  &(FITS Standard) Instrument name\\
+DETNAM    &string  &Detector name; in this case, constant 'photographic plate'\\
+METHOD    &string  &
+  Observation method.  See below for values allowed.\\
+FILTER    &string  &Free text designation of a filter (if used)\\
+PRISM     &string  &
+  Free text designation on the objective prism (if used)\\
+PRISMANG  &string  &
+  Angle of the objective prism (format deg:min)\\
+DISPERS   &float   &Dispersion in objective prism images [Angstrom/mm]\\
+GRATING   &string  &Free text on the grating (if used)\\
+FOCUS     &float   & Focus value (from logbook).\\
+FOCUS$n$  &float   &
+  Focus value of the n-th exposure; used instead of FOCUS when several
+  exposures with different focus values were made.\\
+TEMPERAT  &float   &Air temperature from logbook.\\
+CALMNESS  &string  &
+  Calmness (seeing conditions), scale 1–5\\
+SHARPNES  &string  &Sharpness (seeing conditions), scale 1–5\\
+TRANSPAR  &string  &
+  Transparency, scale 1–5\\
+SKYCOND   &string  &Notes on sky conditions from logbook\\
+OBSERVER  &string  &(FITS Standard) Observer name\\
+OBSNOTES  &string  &Observer notes from logbook\\
+NOTES     &string  &Miscellaneous notes found in the observation
+logbook.\\
 \end{longtable}
 \endgroup
 
-Exposure times are given in seconds. This is different from Paper I and
-the WFPDB that specify exposure time in decimal minutes, rounded to the
-first decimal place.
+The values in \cardname{TMS-ORIG}, \cardname{TME-ORIG},
+\cardname{TMS-ORn}, and \cardname{TMS-ORn} should have the format
+``TZ hh:mm:ss'', where TZ denotes the time system. These values should not be
+transformed from what was taken from the logbook, except when
+correcting obvious (spelling) mistakes.  Historically, all kinds of
+times were used on observatories, and hence we do not attempt to make
+time system identifiers properly machine-readable.  Still, for
+Greenwhich sidereal time, \verb|ST| should be used, for universal time or
+Greenwhich Mean Time, \verb|UT|.  The use of other designations should
+be explained, e.g., in accompanying documentation and/or FITS comments.
+Multiple time notations are separated with commas (e.g. 'UT 18:13, ST
+02:44').  Again, this data will generally be parsed by humans.
 
-In case of multiple exposures (NUMEXP is greater than 1), exposure times
-of all sub-exposures can be given with the EXPTIMn keywords, where n is
-the exposure number in the range 1…99. The EXPTIME and EXPTIM1 keywords
-have the same value.
+In case of multiple exposures (\cardname{NUMEXP} is greater than 1),
+exposure times of all sub-exposures are to be given with the
+\cardname{EXPTIMn} keywords.  The \cardname{EXPTIME} and
+\cardname{EXPTIM1} cards then have the same value.  This is different in
+the (relatively rare) cases of exposures with multiple focus values.
+For such plates, no \cardname{FOCUS} is given but only
+\cardname{FOCUS$n$}.
 
+When multiple \cardname{OBJECT$n$} and \cardname{TMS-OR$n$} cards are
+present, the relationship of exposures and target objects is not defined
+by this specification; it can mean one target object per exposure,
+multiple exposures of the same set of target objects, or any combination
+thereof.
+
+\cardname{CALMNESS} and \cardname{SHARPNESS} would probably both map to
+a modern seeing value; they were introduced to tell apart ``Ruhe'' and
+``Schärfe'' that are common in German log books.
+
+\cardname{OBJTYPE} and \cardname{OBJTYP$n$}, where present and
+non-blank, has to contain one of the following values (taken from the
+WFPDB):
+
+\begin{quotation}
+\noindent comet, HII region, planetary nebula, reference star around a radio
+source, star, moon, field, asteroid, fundamental star
+, cluster of galaxies, nebula, galaxy, star cluster, planet, double
+star, sun, QSO, variable star, supernova, group of galaxies
+\end{quotation}
+
+Where present, \cardname{METHOD} has to contain one of the following
+values (again taken from the WFPDB):
+
+\begin{quotation}
+\noindent test plate, direct photograph, multiexposure, stellar tracks, sub-beam
+(Pickering) prism, with mask, objective prism, Hartmann test, out of
+focus, objective prism, multiexposure, no guiding, objective grating,
+direct photograph, Metcalf's method
+\end{quotation}
 
 \begin{fitsexample}{Observation data, multiple exposures}
 \begin{lstlisting}
@@ -292,38 +380,6 @@ NUMEXP  =                    1 / number of exposures of the plate
 \end{lstlisting}
 \end{fitsexample}
 
-SITELONG and SITELAT are expressed in decimal degrees (rather than a
-sexagesimal character string).
-
-Main differences with Paper I:
-
-new keywords DATEORIG, TMS-ORIG, TME-ORIG, TIMEFLAG, and COORFLAG
-
-ST → TMS-ORIG (provided that the original time is given as sidereal time)
-
-RAEPOBS, DECEPOBS → RA-ORIG, DEC-ORIG
-
-FIELD → OBJECT
-
-EXPTIME expressed in minutes → seconds
-
-MULTIEXP → NUMEXP
-
-new keywords DATEORn, TMS-ORn, TME-ORn, RA-ORn, DEC-ORn, OBJECTn, OBJTYPn, EXPTIMn, where n is the exposure number in the range of 1…99
-
-new keywords OBJTYPE and METHOD, based on the WFPDB
-
-new keyword SITENAME
-
-SITELONG, SITELAT expressed in sexagesimal format → decimal degrees
-
-SITEALTI → SITEELEV
-
-PRIZMANG → PRISMANG
-
-new keyword GRATING
-
-new keywords TEMPERAT, SEEING, SHARPNES, TRANSPAR, SKYCOND, OBSNOTES, and NOTES
 
 \begin{fitsexample}{Observation data, full header}
 \begin{lstlisting}
@@ -434,51 +490,47 @@ NOTES   = '        '           / miscellaneous notes
 
 \subsection{Group 3 – Information about the Photographic Plate}
 
+This group contains information about the physical plate; this includes
+its size, the emulsion used, and similar pieces of metadata.  This group
+is also where administrative information on the plate management is
+being kept.
+
 \begin{inlinetable}
 \footnotesize
-\begin{tabular}{lllp{0.5\textwidth}}
+\begin{tabular}{llp{0.5\textwidth}}
 \sptablerule
-\textbf{Keyword}&\textbf{Paper I}&\textbf{Type}&\textbf{Description}\\
+\textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
-PLATENUM &PLATENUM &string &Plate number in original observation
+PLATENUM &string &Plate number in original observation
 catalogue\\
-WFPDB-ID &PLATE-ID &string &Plate identification in the WFPDB\\
-SERIES   &  -      &string &Series or survey in which the plate belongs,
-e.g. Carte du Ciel, Kapteyn Selected Areas, etc.\\
-PLATEFMT &-        &string &Plate format (e.g. '9x12', '20x20')\\
-PLATESZ1 &PLATESZ  &float  &Plate size along axis 1\\
-PLATESZ2 &PLATESZ  &float  &Plate size along axis 2\\
-FOV1     &CUNIT1   &float  &Field of view along axis 1\\
-FOV2     &CUNIT2   &float  &ield of view along axis 2\\
-EMULSION &EMULSION &string &Type of the photographic emulsion\\
--        &COLOR    &N/A    &The of this keyword is not explained in Paper
-         I.\\
-DEVELOP  &-        &string &Plate development information (developer,
+WFPDB-ID &string &Plate identification in the WFPDB\\
+SERIES   &string &Series or survey to which the plate belongs,
+e.g., Carte du Ciel, Kapteyn Selected Areas\\
+PLATESZ1 &float  &Plate size along axis 1 [cm]\\
+PLATESZ2 &float  &Plate size along axis 2 [cm]\\
+FOV1     &float  &Field of view along axis 1 [deg]\\
+FOV2     &float  &Field of view along axis 2 [deg]\\
+EMULSION &string &Type of the photographic emulsion\\
+DEVELOP  &string &Plate development information (developer,
 time)\\
-PQUALITY &PQUALITY &string &Quality of the plate\\
-PLATNOTE &-        &string &Notes about the plate (e.g. contact copy of
-the original plate)\\
+PQUALITY &string &Free text on the quality of the plate\\
+PLATNOTE &string &Other notes about the plate (free text; e.g., on
+availability or historical relevance)\\
 \end{tabular}
 \end{inlinetable}
 
-We propose giving the plate size separately for both axes, thus replacing the PLATESZ keyword (character string) with PLATESZ1 and PLATESZ2 (floating-point numbers).
+Again, most of this information targets humans rather than machines.  In
+particular, computers are not expected to be able to interpret
+\cardname{PLATENUM}, \cardname{EMULSION}, or \cardname{PQUALITY}.
+Individual archives should try to be internally consistent in the
+contents of these fields.\todo{Aren't FOV1 and FOV2 properties of the
+observation and should hence be in group2?}
 
-We specify the field of view along both axes with the FOV1 and FOV2 keywords, replacing CUNIT1 and CUNIT2 that are reserved for the WCS.
-
-Main differences with Paper I:
-
-PLATE-ID → WFPDB-ID
-
-new keyword SERIES
-
-PLATESZ → PLATESZ1, PLATESZ2
-
-CUNIT1, CUNIT2 → FOV1, FOV2
-
-COLOR → omit
-
-new keyword PLATNOTE
-
+\cardname{PLATESZ1} and \cardname{PLATESZ2} represent the dimensions of
+the glass carrier, not of the sensitive area or of the area scanned.
+One therefore cannot repliably compute the pixel density of the scan by
+dividing \cardname{NAXIS1} by \cardname{PLATESZ1} (although this will in
+general yield the right order of magnitude).
 
 \begin{fitsexample}{Plate metadata}
 \begin{lstlisting}
@@ -500,105 +552,87 @@ PLATNOTE= 'contact copy of original plate that is not available' / plate notes
 
 \subsection{Group 4 – Computed Data For the Observation}
 
-In this group of keyword records, we provide data of the observation
-that are computed on the basis of the original data.
+This group by and large contains data derived from what is given in
+group 2, only using more modern units, formats, and frames.  Machines
+ought to use the information given here to locate the plate in time and,
+where WCS is missing, space.
+
 
 \begingroup
 \footnotesize
-\begin{longtable}{lllp{0.5\textwidth}}
+\begin{longtable}{llp{0.5\textwidth}}
 \sptablerule
-\textbf{Keyword}&\textbf{Paper I}&\textbf{Type}&\textbf{Description}\\
+\textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
-DATE-OBS  &DATE-OBST &\\
-          &TIME-OBS  &string     &(FITS Standard) UT date and time of the
-          start of the observation (format "YYYY-MM-DDThh:mm:ss", or
-          "YYYY-MM-DD" if time is not specified). The date may differ
+DATE-OBS  & string     &(FITS Standard) UT date and time of the
+          start of the observation (format YYYY-MM-DDThh:mm:ss, or
+          YYYY-MM-DD if time is not specified). The date may differ
           from DATEORIG, because the original date usually refers to the
           evening of the observing night.\\
-DT-OBSn   &-         &string     &UT date and time of the start of the
-n-th exposure (n = 1…99)\\
-DATE-AVG  &UT        &string     &(FITS Standard) UT date and time of the
-mid-point of the first exposure (format "YYYY-MM-DDThh:mm:ss")\\
-DT-AVGn   &-         &string     &UT date and time of the mid-point of
-the n-th exposure (n = 1…99)\\
-DATE-END  &DATE-OBS  &\\
-          &TIME-END  &string     &UT date and time of the end of the
-          first exposure (format "YYYY-MM-DDThh:mm:ss")\\
-DT-ENDn   &-         &string     &UT date and time of the end of the n-th
-exposure (n = 1…99)\\
-YEAR      &-         &float     &Decimal year of the start of the first
+DT-OBS$n$ &string     &UT date and time of the start of the
+$n$-th exposure.\\
+DATE-AVG  &string     &(FITS Standard) UT date and time of the
+mid-point of the first exposure (format YYYY-MM-DDThh:mm:ss)\\
+DT-AVG$n$ &string     &UT date and time of the mid-point of
+the $n$-th exposure.\\
+DATE-END  &string     &UT date and time of the end of the
+          first exposure (format YYYY-MM-DDThh:mm:ss)\\
+DT-END$n$ &string     &UT date and time of the end of the $n$-th
+exposure.\\
+YEAR      &float     &Decimal year of the start of the first
 exposure\\
-YEARn     &-         &float     &Decimal year of the start of the n-th
-exposure (n = 1…99)\\
-YEAR-AVG  &EPOCH     &float     &Decimal year of the mid-point of the
+YEAR$n$   &float     &Decimal year of the start of the $n$-th
+exposure\\
+YEAR-AVG  &float     &Decimal year of the mid-point of the
 first exposure\\
-YR-AVGn   &-         &float     &Decimal year of the mid-point of the
-n-th exposure (n = 1…99)\\
-JD        &-         &float     &Julian date at the start of exposure 1\\
-JDn       &-         &float     &Julian date at the start of the n-th
-exposure (n = 1…99)\\
-JD-AVG    &JD        &float     &Julian date at the mid-point of the
+YR-AVG$n$ &float     &Decimal year of the mid-point of the
+$n$-th exposure\\
+JD        &float     &Julian date at the start of exposure 1\\
+JD$n$     &float     &Julian date at the start of the $n$-th exposure\\
+JD-AVG    &float     &Julian date at the mid-point of the
 first exposure\\
-JD-AVGn   &-         &float     &Julian date at the mid-point of the n-th
-exposure (n = 1…99)\\
-HJD-AVG   &-         &float     &Heliocentric Julian date at the
+JD-AVG$n$ &float     &Julian date at the mid-point of the $n$-th
+exposure.\\
+HJD-AVG   &float     &Heliocentric Julian date at the
 mid-point of the first exposure\\
-HJD-AVn   &-         &float     &Heliocentric Julian date at the
-mid-point of the n-th exposure (n = 1…99)\\
-RA        &RA        &string    & Right ascension of the telescope
-pointing (equinox J2000, sexagesimal format "h:m:s")\\
-DEC       &DEC       &string    & Declination of the telescope pointing
-(equinox J2000, sexagesimal format "d:m:s")\\
-RAn       &-         &string    & Right ascension of the telescope
-pointing, n-th exposure=(n = 1…99). Used only when different fields were
-exposed on the same plate.\\
-DECn      &-         &string    & Declination of the telescope pointing,
-n-th exposure (n = 1…99). Used only when different fields were exposed
-on the same plate.\\
-RA\_DEG    &-         &float    & Right ascension of the telescope
-pointing in decimal degrees (equinox J2000)\\
-DEC\_DEG   &-         &float    & Declination of the telescope pointing in
-decimal degrees (equinox J2000)\\
-RA\_DEGn   &-         &float    & Right ascension of the telescope
-pointing in decimal degrees, n-th exposure (n = 1…99). Used only when
-different fields were exposed on the same plate.\\
-DEC\_DEn   &-         &float    & Declination of the telescope pointing in
-decimal degrees, n-th exposure (n = 1…99). Used only when different
-fields were exposed on the same plate. \\
+HJD-AV$n$ &float     &Heliocentric Julian date at the
+mid-point of the $n$-th exposure.\\
+RA        &string    & Right ascension of the telescope
+pointing (ICRS, sexagesimal format h:m:s)\\
+DEC       &string    & Declination of the telescope pointing
+(ICRS, sexagesimal format d:m:s)\\
+RA$n$     &string    & Right ascension of the telescope
+pointing, $n$-th exposure\\
+DEC$n$    &string    & Declination of the telescope pointing,
+$n$-th exposure.\\
+RA\_DEG   &float    & Right ascension of the telescope
+pointing in decimal degrees (ICRS)\\
+DEC\_DEG  &float    & Declination of the telescope pointing in
+decimal degrees (ICRS)\\
+RA\_DEG$n$&float    & Right ascension of the telescope
+pointing in decimal degrees, $n$-th exposure.\\
+DEC\_DE$n$&float    & Declination of the telescope pointing in
+decimal degrees, $n$-th exposure.\\
 \end{longtable}
 \endgroup
 
+For historical reasons, \cardname{RA} and \cardname{DEC} are still given
+sexagesimally.  Writers should make sure they also give their decimal
+equivalents (\cardname{RA\_DEG}, \cardname{DEC\_DEG}).
 
-We replace the EPOCH keyword (Paper I) with YEAR-AVG. The EPOCH keyword
-is deprecated in the FITS Standard. It was previously used to give the
-equinox in years for the celestial coordinate system in which positions
-were expressed. We reserve the EQUINOX keyword for the World Coordinate
-System, as required by the FITS Standard.
+The \cardname{HJD-AVG} headers are to be understood as
+lighttime-corrected universal time for the solar system barycenter.  For
+the other times, no lighttime correction should be applied (the time
+frame is TOPOCENTER in VO terms).  Where we write ``UT'' here, we mean a
+reasonable approximation of our modern UT at the time, presumably GMT
+over most of the time photographic plates were taken.  Times given in
+Ephemeris Time (or perhaps even Terrestial Time) should be converted
+(though the difference probably rarely matters for the sort of data this
+specification talks about).
 
-The RA, DEC, RA\_DEG, and DEC\_DEG keywords provide the precessed
-coordinates of the original recorded coordinates to the equinox J2000.
-
-Main differences with Paper I:
-
-DATE-OBS, TIME-OBS → DATE-OBS
-
-TIME-END → DATE-END
-
-UT → DATE-AVG
-
-date format "YYYY-MM-DD hh:mm:ss" → "YYYY-MM-DDThh:mm:ss"
-
-EPOCH → YEAR-AVG
-
-JD → JD-AVG
-
-new keywords YEAR, HJD-AVG
-
-new keywords RA\_DEG, DEC\_DEG
-
-numbered keywords for multiple exposures
-
-EQUINOX → if necessary, specify with the WCS keywords
+Fractional seconds are allowed on both ISO-like time specifications
+(\cardname{DATE-$x$}, \cardname{DT-$x$} and on sexagesimal positions
+(\cardname{RA}, \cardname{RA$n$}, \cardname{DEC}, \cardname{DEC$n$}).
 
 
 \begin{fitsexample}{Computed metadata, single exposure}
@@ -659,76 +693,51 @@ JD-AVG2 =        2427463.36696 / Julian date at the mid-point of exposure 2
 JD-AVG3 =        2427463.37249 / Julian date at the mid-point of exposure 3
 JD-AVG4 =        2427463.37422 / Julian date at the mid-point of exposure 4
 HJD-AVG =                      / heliocentric JD at the mid-point of exposure 1
-RA      = '        '           / right ascension of pointing (J2000) "h:m:s"
-DEC     = '        '           / declination of pointing (J2000) "d:m:s"
-RA_DEG  =                      / [deg] right ascension of pointing (J2000)
-DEC_DEG =                      / [deg] declination of pointing (J2000)
 \end{lstlisting}
 \end{fitsexample}
+
+Note that this example does not give a position; this is rather common
+when, for instance, the exposure was guided on a solar system object.
 
 
 \subsection{Group 5 – Scan Details}
 
-This group contains information about scanner hardware and software
-settings, also the name of the scan author and the date of the scan.
+This group contains information about the scanning process.  Except
+possibly for \cardname{WEDGE}, we do not expect that these headers will
+be automatically processed by machines.
 
 \begin{inlinetable}
 \footnotesize
-\begin{tabular}{lllp{0.5\textwidth}}
+\begin{tabular}{llp{0.5\textwidth}}
 \sptablerule
-\textbf{Keyword}&\textbf{Paper I}&\textbf{Type}&\textbf{Description}\\
+\textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
-SCANRES1 &SCANRES    &integer &Scan resolution along axis 1 [dpi]\\
-SCANRES2 &SCANRES    &integer &Scan resolution along axis 2 [dpi]\\
-PIXSIZE1 &XPIXELSZ   &float   &Pixel size along axis 1 [$\mu\rm m$]\\
-PIXSIZE2 &YPIXELSZ   &float   &Pixel size along axis 2 [$\mu\rm m$]\\
-SCANSOFT &-          &string  &Name of the scanning software\\
--        &SCANHCUT   &        &Omit: scan high-cut value\\
--        &SCANLCUT   &        &Omit: scan low-cut value\\
-SCANGAM  &SCANGAM    &float   &Scan gamma value\\
-SCANFOC  &SCANFOC    &string  &Scan focus (e.g. 'glass')\\
-WEDGE    &WEDGE      &string  &Type of photometric step-wedge\\
-DATESCAN &DATE-SCN   &string  &
+SCANRES1 &integer &Scan resolution along axis 1 [dpi]\\
+SCANRES2 &integer &Scan resolution along axis 2 [dpi]\\
+PIXSIZE1 &float   &Pixel size along axis 1 [$\mu\rm m$]\\
+PIXSIZE2 &float   &Pixel size along axis 2 [$\mu\rm m$]\\
+SCANSOFT &string  &Name of the scanning software\\
+SCANGAM  &float   &Scan gamma value\\
+SCANFOC  &string  &Scan focus (e.g., 'glass')\\
+WEDGE    &string  &Type of photometric step-wedge\\
+DATESCAN &string  &
   Scan date and time (UTC, format "YYYY-MM-DDThh:mm:ss")\\
-SCANAUTH &AUTHOR     &string  &Author of the scan\\
-SCANNOTE &-          &string  &
-  Notes about the scan (e.g. scan orientation)\\
--        &REFERENC   &        &We propose omitting this keyword \
+SCANAUTH &string  &Author of the scan\\
+SCANNOTE &string  &
+  Free text notes about the scan (e.g., scan orientation)\\
 \end{tabular}
 \end{inlinetable}
 
 
-We propose replacing the SCANRES keyword with the SCANRES1 and SCANRES2
-keywords, indicating scan resolution along both image axes separately.
-
-By FITS Standard, the AUTHOR and REFERENCE keywords are used when the
-data in the FITS file were compiled from a publication or multiple
-sources. For digitized photographic plates, these keywords are not
-appropriate for specifying the author of the scan nor acknowledging any
-funding sources. We propose replacing the AUTHOR keyword with SCANAUTH
-and providing acknowledgments with the COMMENT keyword (Group 8).
-
-Main differences with Paper I:
-
-SCANRES → SCANRES1, SCANRES2
-
-XPIXELSZ → PIXSIZE1
-
-YPIXELSZ → PIXSIZE2
-
-PIXSIZE1, PIXSIZE2 unit: [microns] → [um]
-
-new keywords SCANSOFT, SCANNOTE
-
-SCANHCUT, SCANLCUT → omit
-
-SCANFOC type: float → string
-
-date format "YYYY-MM-DD hh:mm:ss" → "YYYY-MM-DDThh:mm:ss"
-
-AUTHOR → SCANAUTH
-
-REFERENC → COMMENT
+By the FITS Standard, the \cardname{AUTHOR} and \cardname{REFERENCE} 
+keywords are used when the
+data in the FITS file was compiled from a publication or multiple
+sources. For digitised photographic plates, these keywords are not
+appropriate for specifying the author of the scan or acknowledging a
+funding source. Hence, we add the \cardname{SCANAUTH} header with
+similar semantics as \cardname{AUTHOR}, just regarding the scanning
+process.  Acknowledgments (as in \cardname{REFERENCE}) would currently
+go into a comment in group~8.
 
 
 \begin{fitsexample}{Scanning metadata}
@@ -751,36 +760,40 @@ SCANAUTH= 'K. Tsvetkova'       / author of scan
 
 \subsection{Group 6 – Data Files}
 
+This group mainly contains references to digital artefacts resulting
+from the scanning process.  The values of these can either be plain file
+names or, preferably, full URIs.  Where plain file names are given, a
+FITS comment should give further information on where these files might
+be found.
+
 \begin{inlinetable}
 \footnotesize
-\begin{tabular}{lllp{0.5\textwidth}}
+\begin{tabular}{llp{0.5\textwidth}}
 \sptablerule
-\textbf{Keyword}&\textbf{Paper I}&\textbf{Type}&\textbf{Description}\\
+\textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
-FILENAME &FILENAME &string    &Filename of the plate scan (this file)\\
-FN-SCNi  &-        &string    &
-  Filename of the i-th scan of the same plate (i = 1…99)\\
-FN-WEDGE &-        &string    &Filename of the wedge scan\\
-FN-PRE   &-        &string    &
-  Filename of the preview image (annotated plate)\\
-FN-COVER &-        &string    &
+FILENAME &string    &Filename of the plate scan (this file)\\
+FN-SCNn  &string    &
+  Filename of the $n$-th scan of the same plate\\
+FN-WEDGE &string    &Filename of the wedge scan\\
+FN-PRE   &string    &
+  Filename of a low-resolution scan\\
+FN-COVER &string    &
   Filename of the plate cover (envelope) image\\
-FN-LOGB  &-        &string    &Filename of the logbook image\\
-FN-NTBi  &-        &string    &
-  Filename of the i-th notebook image (i = $1\cdots 99$)\\
--        &URL      &          &We propose omitting this keyword.\\
-ORIGIN   &ORIGIN   &string    &
+FN-LOGB  &string    &Filename of the logbook image\\
+FN-NTBn  &string    &
+  Filename of the $n$-th notebook image\\
+ORIGIN   &string    &
   (FITS Standard) Institute responsible for creating the FITS file\\
-DATE     &DATE     &string    &
+DATE     &string    &
   (FITS Standard) Date and time of the last change of the file \\
 \end{tabular}
 \end{inlinetable}
 
-Main differences with Paper I:
-
-new keywords FN-SCNi, FN-WEDGE, FN-PRE, FN-COVER, FN-LOGB, and FN-NTBi
-
-URL → omit
+\cardname{FN-PRE} does not mean a thumbnail, but a compact, lossy
+representation -- typically, a JPEG image.  Within the APPLAUSE project,
+this low-resolution image was used to document annotations on the plates
+before they were erased in preparation of the full-resolution scan.
 
 
 \begin{fitsexample}{Associated files}
@@ -796,6 +809,8 @@ DATE    = '2013-04-09T12:00:00' / last change of this file
 \end{lstlisting}
 \end{fitsexample}
 
+A blank value -- as in \cardname{FN-COVER} in this example -- should be
+ignored by readers in general.
 
 
 \begin{fitsexample}{Associated files, multiple notebook pages}
@@ -821,17 +836,11 @@ DATE    = '2013-12-12T13:42:00' / last change of this file
 
 \subsection{Group 7 – World Coordinate System (WCS)}
 
-The astrometric information are given with the World Coordinate System
-(WCS) keywords, as described in the FITS Standard.
-
-If the EQUINOX keyword is not given, then coordinates are assumed to
-refer to the International Celestial Reference System (ICRS).
-
-When the WCS solution is not possible through matching stars in the
-scan, the WCS keywords can be used to provide the approximate
-coordinates, based on the plate scale and the precessed coordinates of
-the original telescope pointing.
-
+Whenever possible, plate scans should come with a WCS solution as per
+\citet{2002A&A...395.1077C}.  In particular for wide-field plates, we
+recommend that polynomial (SIP) corrections be included.  Approximate
+WCS solutions based on the observation log are permitted but
+discouraged.
 
 \begin{fitsexample}{WCS}
 \begin{lstlisting}
@@ -858,9 +867,14 @@ LONPOLE = 0.0 / native longitude of the celestial pole
 
 \subsection{Group 8 – modification history and acknowledgements}
 
-Modification history is given with the HISTORY keyword.
+The eights group collects global free-text history and global comments; of
+course, comments on individual items can be present in other sections,
+too, and processing software should keep those comment cards in their
+original places (relative to the header card that follows them) when
+re-writing a header.
 
-Comments and acknowledgements are given with the COMMENT keyword.
+In particular, use comment cards for acknowledgements.  None of this is
+intended to be consumable by machines.
 
 
 \begin{fitsexample}{Header Metadata}
@@ -1021,87 +1035,6 @@ COMMENT Bulgarian Ministry of Education and Science.
 END
 \end{lstlisting}
 
-
-\section{Example header created with header2011}
-
-\label{sect:platehdr}
-
-\begin{lstlisting}
-SIMPLE  =                  T / file does conform to FITS standard
-BITPIX  =                 16 / number of bits per data pixel
-NAXIS   =                  2 / number of data axes
-NAXIS1  =              18904 / length of data axis 1
-NAXIS2  =              18904 / length of data axis 2
-EXTEND  =                  T / FITS dataset may contain extensions
-BZERO   =              65536 /
-BSCALE  =                  1 /
-INVERTED=                  T / T -  big-endian, F - little-endian
-DATE    = '2011-06-30 10:53:40' / last change of file
-FILENAME= 'POT015_000317.fits' / source file name
-PLATENUM= '317             ' / in original observation catalogue
-PLATE-ID= 'POT015_000317   ' / WFPDB ident. of plate
-OBJECT  = 'SA 87           ' / field name and/or star name
-EMULSION= '                ' / photoemulsion type
-EXPTIME = 3.000000000000E+01 / exposure time [minutes]
-DISPERS =                    / dispersion [A/mm]
-MULTIEXP=                  1 / number of exposure of the plate
-PQUALITY= '                ' / quality of plate
-DATE-OBS= '1910-08-02      ' / date of observation
-RA      = '19:15:48        ' / center of plate FK5
-DEC     = '+15:13:20       ' / center of plate FK5
-EQUINOX = 2.000000000000E+03 / equatorial coordinates definition
-UT      = '1910-08-02 22:36:01' / date and UT at mean epoch
-ST      = '18:11:16        ' / ST at start of the observation
-JD      = 2.418886441678E+06 / JD at mean epoch
-TIME-OBS= '22:21:01        ' / UT at start of observation
-TIME-END= '22:51:01        ' / UT at end of observation
-RAEPOBS = '                ' / center of plate at epoch of observation
-DECEPOBS= '                ' / center of plate at epoch of observation
-EPOCH   = 1.910583561644E+03 / epoch of plate
-PLATESZ = '20x20           ' / plate size [cm]x[cm]
-CUNIT1  = 7.650000000000E+00 / X field size [deg]
-CUNIT2  = 7.650000000000E+00 / Y field size [deg]
-DETNAM  = 'Photographic Plate' /
-OBSERVER= 'W.Muench        ' / observer name
-OBSERVAT= 'AO Potsdam      ' / observatory name
-INSTRUME= '                ' /
-TELESCOP= 'Zeiss Triplet 15 cm Potsdam-Telegrafenberg' / telescop name
-SITELONG= '-13:03:51.0     ' / longitude of the obsrvatory
-SITELAT = '+52:22:50.0     ' / latitude of the observatory
-SITEALTI=                107 / altitude of the observatory
-COLOR   = 'Pg              ' /
-FILTER  = 'NO              ' / filter type
-PRIZMANG= 'NO              ' / prism angle
-TELAPER = 1.500000000000E-01 / clear aperture [m]
-TELFOC  = 1.500000000000E+00 / focal length [m]
-TELSCALE= 1.376800000000E+02 / telescope scale  [arcsec/mm]
-SCANNER = 'EPSON EXPRESSION 10000XL' / scanner name
-SCANRES =               2400 / scan resolution
-XPIXELSZ= 1.058330000000E+01 / X pixel size [microns]
-YPIXELSZ= 1.058330000000E+01 / Y pixel size [microns]
-SCANHCUT=                255 / focal length [m]
-SCANLCUT=                  0 / scan shadow value
-SCANGAM = 1.000000000000E+00 / scan gamma value
-SCANFOC = 0.000000000000E+00 / scan focus
-DATE-SCN= '2011-05-17 10:33:26' / scan date and time
-AUTHOR  = 'K. Tsvetkova    ' / author of scan
-ORIGIN  = 'Leibniz IAP - WFPDB - Sofia' /
-REFERENC= 'May-June DFG Stay of K.Tsvetkova  in AIP, DO-02-275 MON' / reference
-URL     = 'vo.aip.de, www.wfpdb.org' / base URL of VO Service to retrieve data
-COMMENT
-       Based on photographic data of the Leibniz Astrophysical Observatory
-       Potsdam - Kapteyn Selected Areas Survey obtained using the 80 cm Great
-       Refractor and 15 cm Zeiss Triplet telescope at Telegrafenberg - Potsdam
-       in the period 1910-1933. The plates were digitized using professional
-       flatbed scanners EPSON 10000XL/V700 and processed in the present digital
-       form. The project of Plate digitization was funded by a German DFG grant
-       STE: 710/6-1,20.11.2009 and partially of the grants of Bulgarian
-       Ministry of Education and Science DO-02-273/275,18.12.2009.
-
-       Investigators using these scans are kindly requested to include the
-       above acknowledgements in any publications.
-
-\end{lstlisting}
 
 \appendix
 \section{Changes from Previous Versions}
