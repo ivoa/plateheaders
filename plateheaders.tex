@@ -9,7 +9,7 @@
 \definecolor{keyword}{rgb}{0.118,0.2,0.618}
 \newcommand\cardname[1]{\texttt{\color{keyword}#1}}
 
-\title{FITS Headers for Scans of Glass Plates}
+\title{FITS Headers for Scans of Photographic Plates}
 
 \ivoagroup{Data Model}
 
@@ -37,7 +37,7 @@ scientific use.  This metadata structure is general enough to cover
 several observational techniques common in the plate area, such as
 multiply exposed plates or objective prism spectroscopy.  While this
 metadata structure was being developed together with annotation software
-(plate2011, later pyplates) and a specific digitisation project
+(pyplates) and a specific digitisation project
 (applause), we hope it is general enough to serve as a lingua franca for
 scanned glass plates.
 
@@ -84,7 +84,8 @@ on the image itself, but also on its provenance.
 The present work has greatly benefited from the Wide-Field Plate
 Database WFPDB \citep{1995LNP...454..412T}, which informed many of the
 design choices made here.  However, this effort is independent of the
-WFPDB as such.
+WFPDB as such.  The direct predecessor of this Note is \citet{paper1},
+which already introduced several of the concepts covered here.
 
 While conformant FITS headers can be written with generic FITS software,
 higher-level interfaces have been written, in particular in the pyplate
@@ -279,9 +280,11 @@ SITELAT   &float   &
 SITEELEV  &float   &
   Elevation of the observatory site [m]\\
 TELESCOP  &string  &(FITS Standard) Telescope name\\
-TELAPER   &float   &Clear aperture of the telescope [m]\\
-TELFOC    &float   &Focal length of the telescope [m]\\
-TELSCALE  &float   &Plate scale of the telescope [arcsec/mm]\\
+OTA-NAME  &string  &Free-text designation of the optical tube assembly (OTA)\\
+OTA-DIAM  &float   &Diameter of the OTA [m]\\
+OTA-APER  &float   &Clear aperture of the OTA [m]\\
+FOCLEN    &float   &Focal length of the telescope [m]\\
+PLTSCALE  &float   &Plate scale of the telescope [arcsec/mm]\\
 INSTRUME  &string  &(FITS Standard) Instrument name\\
 DETNAM    &string  &Detector name; in this case, constant 'photographic plate'\\
 METHOD    &string  &
@@ -311,6 +314,12 @@ logbook.\\
 \end{longtable}
 \endgroup
 
+The notion of the ``optical tube assembly'' (OTA) is used here because
+in several cases multiple tubes shared a single mounting; calling each of
+these tubes a separate ``telescope'' is not in line with what the word
+was used for historically.  We hence decided to use a new, dedicated
+term here.
+
 The values in \cardname{TMS-ORIG}, \cardname{TME-ORIG},
 \cardname{TMS-ORn}, and \cardname{TMS-ORn} should have the format
 ``TZ hh:mm:ss'', where TZ denotes the time system. These values should not be
@@ -318,7 +327,7 @@ transformed from what was taken from the logbook, except when
 correcting obvious (spelling) mistakes.  Historically, all kinds of
 times were used on observatories, and hence we do not attempt to make
 time system identifiers properly machine-readable.  Still, for
-Greenwhich sidereal time, \verb|ST| should be used, for universal time or
+local sidereal time, \verb|ST| should be used, for universal time or
 Greenwhich Mean Time, \verb|UT|.  The use of other designations should
 be explained, e.g., in accompanying documentation and/or FITS comments.
 Multiple time notations are separated with commas (e.g. 'UT 18:13, ST
@@ -508,8 +517,6 @@ SERIES   &string &Series or survey to which the plate belongs,
 e.g., Carte du Ciel, Kapteyn Selected Areas\\
 PLATESZ1 &float  &Plate size along axis 1 [cm]\\
 PLATESZ2 &float  &Plate size along axis 2 [cm]\\
-FOV1     &float  &Field of view along axis 1 [deg]\\
-FOV2     &float  &Field of view along axis 2 [deg]\\
 EMULSION &string &Type of the photographic emulsion\\
 DEVELOP  &string &Plate development information (developer,
 time)\\
@@ -523,8 +530,7 @@ Again, most of this information targets humans rather than machines.  In
 particular, computers are not expected to be able to interpret
 \cardname{PLATENUM}, \cardname{EMULSION}, or \cardname{PQUALITY}.
 Individual archives should try to be internally consistent in the
-contents of these fields.\todo{Aren't FOV1 and FOV2 properties of the
-observation and should hence be in group2?}
+contents of these fields.
 
 \cardname{PLATESZ1} and \cardname{PLATESZ2} represent the dimensions of
 the glass carrier, not of the sensitive area or of the area scanned.
@@ -541,8 +547,6 @@ SERIES  = 'Kapteyn Selected Areas' / plate series
 PLATEFMT= '20x20   '           / plate format in cm
 PLATESZ1=                 20.0 / [cm] plate size along axis 1
 PLATESZ2=                 20.0 / [cm] plate size along axis 2
-FOV1    =                 7.65 / [deg] field of view along axis 1
-FOV2    =                 7.65 / [deg] field of view along axis 2
 EMULSION= 'Schleussner'        / photographic emulsion type
 DEVELOP = '        '           / plate development information
 PQUALITY= 'broken  '           / quality of plate
@@ -905,134 +909,176 @@ COMMENT Bulgarian Ministry of Education and Science.
 \section{Complete sample header}
 \label{sect:samplehdr}
 
+
 \begin{lstlisting}
 SIMPLE  =                    T / file conforms to FITS standard
 BITPIX  =                   16 / number of bits per data pixel
 NAXIS   =                    2 / number of data axes
 NAXIS1  =                18904 / length of data axis 1
 NAXIS2  =                18904 / length of data axis 2
+EXTEND  =                    T / file may contain extensions
 BSCALE  =                  1.0 / physical_value = BZERO + BSCALE * array_value
 BZERO   =                32768 / physical_value = BZERO + BSCALE * array_value
+MINVAL  =                147.0 / minimum image value
+MAXVAL  =              65532.0 / maximum image value
         --------------------------------------- Original data of the observation
 DATEORIG= '1910-08-02'         / recorded date of the observation
-TMS-ORIG= 'ST 18:11:16'        / recorded time of the start of the observation
-TME-ORIG= '        '           / recorded time of the end of the observation
-TIMEFLAG= 'uncertain'          / quality of the recorded time
-RA-ORIG = '19:11:42'           / recorded right ascension of telescope pointing
-DEC-ORIG= '15:04:00'           / recorded declination of telescope pointing
-COORFLAG= 'uncertain'          / quality of the recorded coordinates
-OBJECT  = 'SA 87   '           / name of the observed object or field
+TMS-ORIG= 'ST 19:52:08'        / recorded time of the start of exposure 1
+TME-ORIG= '        '           / recorded time of the end of exposure 1
+JDA-ORIG=                      / recorded Julian date, mid-point of exposure 1
+TIMEFLAG= '        '           / quality flag of recorded time
+RA-ORIG = '19:11:42'           / recorded right ascension of exposure 1
+DEC-ORIG= '+15:04  '           / recorded declination of exposure 1
+COORFLAG= '        '           / quality flag of recorded coordinates
+OBJECT  = 'SA 87   '           / observed object or field (exposure 1)
 OBJTYPE = 'field   '           / object type
-EXPTIME =               1800.0 / [s] exposure time (of exposure 1)
+EXPTIME =               1800.0 / [s] exposure time of exposure 1
 NUMEXP  =                    1 / number of exposures of the plate
 OBSERVAT= 'Astrophysikalische Observatorium Potsdam' / observatory name
-SITENAME= 'Potsdam-Telegrafenberg' / observatory site name
-SITELONG=            13.064167 / [deg] East longitude of the observatory
-SITELAT =            52.380556 / [deg] latitude of the observatory
+SITENAME= 'Potsdam-Telegrafenberg' / observatory site
+SITELONG=             13.06417 / [deg] East longitude of the observatory
+SITELAT =             52.38056 / [deg] latitude of the observatory
 SITEELEV=                  107 / [m] elevation of the observatory
-TELESCOP= 'Zeiss Triplet 15 cm' / telescope name
-TELAPER =                 0.15 / [m] clear aperture of the telescope
-TELFOC  =                  1.5 / [m] focal length of the telescope
-TELSCALE=               137.68 / [arcsec/mm] plate scale of the telescope
+TELESCOP= 'Zeiss Triplet'      / telescope name
+OTA-NAME= '15-cm camera'       / optical tube assembly (OTA)
+OTA-DIAM=                 0.15 / [m] diameter of the OTA
+OTA-APER=                 0.15 / [m] clear aperture of the OTA
+FOCLEN  =                  1.5 / [m] focal length of the OTA
+PLTSCALE=                  137 / [arcsec/mm] plate scale of the OTA
 INSTRUME= '        '           / instrument
 DETNAM  = 'photographic plate' / detector
 METHOD  = 'direct photograph'  / method of observation
-FILTER  = 'none    '           / filter type
+FILTER  = '        '           / filter type
 PRISM   = '        '           / objective prism
 PRISMANG= '        '           / prism angle "deg:min"
 DISPERS =                      / [Angstrom/mm] dispersion
 GRATING = '        '           / grating
-FOCUS   =                 32.2 / focus value
+FOCUS   =                 32.2 / focus position
 TEMPERAT=                 21.8 / [deg C] air temperature (degrees Celsius)
-CALMNESS= '2-3     '           / sky calmness (scale 1-5)
-SHARPNES= '2       '           / sky sharpness (scale 1-5)
-TRANSPAR= '1-2     '           / sky transparency (scale 1-5)
-SKYCOND = 'moonlight'          / sky conditions
-OBSERVER= 'W. Muench'          / observer name
-OBSNOTES= 'bad guiding'        / observer notes
+CALMNESS= '        '           / sky calmness (scale 1-5)
+SHARPNES= '        '           / sky sharpness (scale 1-5)
+TRANSPAR= '        '           / sky transparency (scale 1-5)
+SKYCOND = '        '           / other sky conditions
+OBSERVER= 'W. Muench, K. Bottlinger' / observer name
+OBSNOTES= '        '           / observer notes
 NOTES   = 'SA 87 = Kapteyn Selected Area 87' / miscellaneous notes
+BIBCODE = '        '           / bibcode of a related paper
         ----------------------------------------------------- Photographic plate
-PLATENUM= '317     '           / plate number in original observation catalogue
+PLATENUM= '317     '           / plate number in archive
+PNUMORIG= '        '           / original plate number in archive
 WFPDB-ID= 'POT015_000317'      / plate identification in the WFPDB
-SERIES  = 'Kapteyn Selected Areas' / plate series
+SERIES  = 'Kapteyn series'     / plate series
 PLATEFMT= '20x20   '           / plate format in cm
-PLATESZ1=                 20.0 / [cm] plate size along axis 1
-PLATESZ2=                 20.0 / [cm] plate size along axis 2
-FOV1    =                 7.65 / [deg] field of view along axis 1
-FOV2    =                 7.65 / [deg] field of view along axis 2
-EMULSION= 'Schleussner'        / photographic emulsion type
-DEVELOP = '        '           / plate development information
-PQUALITY= 'broken  '           / quality of plate
-PLATNOTE= 'contact copy of original plate that is not available' / plate notes
+PLATESZ1=                   20 / [cm] plate size along axis 1
+PLATESZ2=                   20 / [cm] plate size along axis 2
+EMULSION= '        '           / photographic emulsion type
+DEVELOP = '        '           / plate development details
+PQUALITY= '        '           / quality of plate
+PLATNOTE= '        '           / plate notes
         --------------------------------------- Computed data of the observation
-DATE-OBS= '1910-08-02T22:21:01' / UT date of the start of the observation
-DATE-AVG= '1910-08-02T22:36:01' / UT date of the mid-point of exposure 1
-DATE-END= '1910-08-02T22:51:01' / UT date of the end of exposure 1
-YEAR    =       1910.583561644 / decimal year of the start of exposure 1
-YEAR-AVG=       1910.583561644 / decimal year of the mid-point of exposure 1
-JD-AVG  =       2418886.441678 / Julian date at the mid-point of exposure 1
-HJD-AVG =       2418886.441678 / heliocentric JD at the mid-point of exposure 1 
-RA      = '19:15:48'           / right ascension of pointing (J2000) "h:m:s"
-DEC     = '+15:13:20'          / declination of pointing (J2000) "d:m:s"
-RA_DEG  =           288.950000 / [deg] right ascension of pointing (J2000)
-DEC_DEG =            15.222222 / [deg] declination of pointing (J2000)
+DATE-OBS= '1910-08-02T22:17:23' / UT date of the start of exposure 1
+DATE-AVG= '1910-08-02T22:32:23' / UT date of the mid-point of exposure 1
+DATE-END=                      / UT date of the end of exposure 1
+YEAR    =        1910.58570496 / decimal year of the start of exposure 1
+YEAR-AVG=        1910.58573348 / decimal year of the mid-point of exposure 1
+YEAR-END=                      / decimal year of the end of exposure 1
+JD      =        2418886.42874 / Julian date at the start of exposure 1
+JD-AVG  =        2418886.43916 / Julian date at the mid-point of exposure 1
+JD-END  =                      / Julian date at the end of exposure 1
+HJD-AVG =        2418886.44361 / heliocentric JD at the mid-point of exposure 1
+RA      = '19:15:44.1'         / right ascension of pointing (J2000) "h:m:s"
+DEC     = '15:13:29.9'         / declination of pointing (J2000) "d:m:s"
+RA_DEG  =             288.9337 / [deg] right ascension of pointing (J2000)
+DEC_DEG =               15.225 / [deg] declination of pointing (J2000)
         ------------------------------------------------------------------- Scan
 SCANNER = 'Epson Expression 10000XL' / scanner name
 SCANRES1=                 2400 / [dpi] scan resolution along axis 1
 SCANRES2=                 2400 / [dpi] scan resolution along axis 2
 PIXSIZE1=              10.5833 / [um] pixel size along axis 1
 PIXSIZE2=              10.5833 / [um] pixel size along axis 2
-SCANSOFT= 'VueScan '           / name of the scanning software
-SCANGAM =                  1.0 / scan gamma value
-SCANFOC = 'glass'              / scan focus
-WEDGE   = 'Danes-Picta TG21S'  / type of photometric step-wedge
-DATESCAN= '2011-05-17T10:33:26' / scan date and time
+SCANSOFT= '        '           / scanning software
+SCANGAM =                      / scan gamma value
+SCANFOC = '        '           / scan focus
+WEDGE   = '        '           / type of photometric step-wedge
+DATESCAN= '2011-05-17T08:33:26' / scan date and time
 SCANAUTH= 'K. Tsvetkova'       / author of scan
+SCANNOTE= '        '           / scan notes
         ------------------------------------------------------------- Data files
-FILENAME= 'POT015_000317.fits' / filename of this file
-FN-WEDGE= 'POT015_000317w.fits' / filename of the wedge scan
+FILENAME= 'POT015_000317.fits' / filename of the plate scan
+FN-SCN1 = 'POT015_000317.fits' / filename of scan 1
+FN-WEDGE= 'POT015_000317_w.fits' / filename of the wedge scan
 FN-PRE  = 'POT015_000317_pre.jpg' / filename of the preview image
 FN-COVER= '        '           / filename of the plate cover image
-FN-LOGB = 'POT015_000317-000334.jpg' / filename of logbook image
+FN-LOG1 = 'ZT-LB01-000317-000334.jpg' / filename of logbook image 1
 ORIGIN  = 'Leibniz-Institut fuer Astrophysik Potsdam (AIP)'
-DATE    = '2013-04-09T12:00:00' / last change of this file
-        ------------------------------------------ World Coordinate System (WCS)
-WCSAXES =                    2 / number of axes in the WCS description
-RADESYS = 'FK5     '           / name of the reference frame
-EQUINOX =               2000.0 / epoch of the mean equator and equinox in years
-CTYPE1  = 'RA---TAN'           / TAN (gnomonic) projection
-CTYPE2  = 'DEC--TAN'           / TAN (gnomonic) projection
-CUNIT1  = 'deg     '           / physical units of CRVAL and CDELT for axis 1
-CUNIT2  = 'deg     '           / physical units of CRVAL and CDELT for axis 2
-CRPIX1  =               9452.5 / reference pixel for axis 1
-CRPIX2  =               9452.5 / reference pixel for axis 2
-CRVAL1  =               288.95 / right ascension at the reference point
-CRVAL2  =            15.222222 / declination at the reference point
-CD1_1   =        -0.0004047524 / transformation matrix
-CD1_2   =                  0.0 / transformation matrix
-CD2_1   =                  0.0 / transformation matrix
-CD2_2   =         0.0004047524 / transformation matrix
-LONPOLE =                  0.0 / native longitude of the celestial pole
-        --------------------------------------------------- Modification history
-HISTORY Header written with PyPlates at 2013-12-18T12:00:00
-HISTORY WCS modified by T. Tuvikene (AIP) at 2013-12-19T12:00:00
+DATE    = '2022-03-01T07:55:13' / last change of this file
+        -------------------------------------------------------------------- WCS
+HISTORY   Astrometric solution by SCAMP version 2.10.0 (2021-06-07)
+EQUINOX =        2000.00000000 / Mean equinox
+RADESYS = 'ICRS    '           / Astrometric system
+CTYPE1  = 'RA---TPV'           / WCS projection type for this axis
+CTYPE2  = 'DEC--TPV'           / WCS projection type for this axis
+CUNIT1  = 'deg     '           / Axis unit
+CUNIT2  = 'deg     '           / Axis unit
+CRVAL1  =   2.889496876869E+02 / World coordinate on this axis
+CRVAL2  =   1.499181176825E+01 / World coordinate on this axis
+CRPIX1  =   9.452500000000E+03 / Reference pixel on this axis
+CRPIX2  =   9.452500000000E+03 / Reference pixel on this axis
+CD1_1   =  -4.036655485153E-04 / Linear projection matrix
+CD1_2   =  -3.621686854687E-06 / Linear projection matrix
+CD2_1   =  -3.730596479942E-06 / Linear projection matrix
+CD2_2   =   4.052335966967E-04 / Linear projection matrix
+PV1_0   =   1.819365521161E-04 / Projection distortion parameter
+PV1_1   =   1.001005528320E+00 / Projection distortion parameter
+PV1_2   =   5.017392310243E-04 / Projection distortion parameter
+PV1_4   =  -2.323791286135E-05 / Projection distortion parameter
+PV1_5   =  -1.359281566747E-05 / Projection distortion parameter
+PV1_6   =   1.638989950374E-05 / Projection distortion parameter
+PV1_7   =  -1.356092599012E-04 / Projection distortion parameter
+PV1_8   =  -5.900609933445E-06 / Projection distortion parameter
+PV1_9   =  -9.583368487198E-05 / Projection distortion parameter
+PV1_10  =   5.642839611951E-06 / Projection distortion parameter
+PV2_0   =   6.375509204261E-04 / Projection distortion parameter
+PV2_1   =   1.002544704064E+00 / Projection distortion parameter
+PV2_2   =  -2.878680758084E-05 / Projection distortion parameter
+PV2_4   =   6.122481161384E-04 / Projection distortion parameter
+PV2_5   =  -5.500999776357E-06 / Projection distortion parameter
+PV2_6   =   2.327669386965E-05 / Projection distortion parameter
+PV2_7   =   1.570030554563E-04 / Projection distortion parameter
+PV2_8   =   4.476899592895E-06 / Projection distortion parameter
+PV2_9   =  -9.087182263726E-05 / Projection distortion parameter
+PV2_10  =  -2.680250757454E-06 / Projection distortion parameter
+FGROUPNO=                    1 / SCAMP field group label
+ASTIRMS1=   0.000000000000E+00 / Astrom. dispersion RMS (intern., high S/N)
+ASTIRMS2=   0.000000000000E+00 / Astrom. dispersion RMS (intern., high S/N)
+ASTRRMS1=   1.139308494906E-04 / Astrom. dispersion RMS (ref., high S/N)
+ASTRRMS2=   1.078386077369E-04 / Astrom. dispersion RMS (ref., high S/N)
+ASTINST =                    1 / SCAMP astrometric instrument label
+FLXSCALE=   0.000000000000E+00 / SCAMP relative flux scale
+MAGZEROP=           0.00000000 / SCAMP zero-point
+PHOTIRMS=           0.00000000 / mag dispersion RMS (internal, high S/N)
+PHOTINST=                    1 / SCAMP photometric instrument label
+PHOTLINK=                    F / True if linked to a photometric field
+        ---------------------------------------------------------------- Licence
+LICENCE = 'https://creativecommons.org/publicdomain/zero/1.0/'
         ------------------------------------------------------- Acknowledgements
-COMMENT The digitization of this plate was funded by the German Research
-COMMENT Foundation (DFG) grant STE: 710/6-1,20.11.2009 and partially by the
-COMMENT grants of the Bulgarian Ministry of Education and Science
-COMMENT DO-02-273/275,18.12.2009. The 2011 May-June stay of K. Tsvetkova at AIP
-COMMENT was funded by DO-02-275 MON.
-COMMENT
-COMMENT Publications based on this digitized photographic plate are requested to
-COMMENT include the following acknowledgement.
-COMMENT
-COMMENT Based on photographic data of the Leibniz-Institut fuer Astrophysik
-COMMENT Potsdam (AIP). The Kapteyn Selected Areas Survey was obtained with the
-COMMENT 80-cm Great Refractor and the 15-cm Zeiss Triplet telescope at
-COMMENT Potsdam-Telegrafenberg in 1910-1933. The project of plate digitization
-COMMENT was funded by the grants of the German Research Foundation (DFG) and the
-COMMENT Bulgarian Ministry of Education and Science.
-END
+COMMENT The digitized image is provided by Leibniz Institute for Astrophysics
+COMMENT Potsdam (AIP). Funding for APPLAUSE has been provided by DFG (German
+COMMENT Research Foundation), Leibniz Institute for Astrophysics Potsdam (AIP),
+COMMENT Dr. Karl Remeis-Sternwarte, Bamberg (Friedrich-Alexander-Universitaet
+COMMENT Erlangen-Nuernberg), Hamburger Sternwarte (Unversity Hamburg) and Tartu
+COMMENT Observatory (University of Tartu). We thank Thueringer Landessternwarte
+COMMENT Tautenburg (TLS), Astrophysikalisches Institut und
+COMMENT Universitaetsternwarte Jena (University of Jena) and the Vatican
+COMMENT Observatory for providing digitized Material for inclusion into the
+COMMENT archive.
+        ---------------------------------------------------------------- History
+HISTORY Header updated with PyPlate v4.0.12 at 2022-03-01T07:53:29
+HISTORY WCS added with PyPlate v4.0.12 at 2022-03-01T07:55:13
+        -------------------------------------------------------------- Checksums
+CHECKSUM= 'EUWaGSUXESUaESUU'   / HDU checksum updated 2022-03-01T08:55:18
+DATASUM = '2591757796'         / data unit checksum updated 2022-03-01T08:55:18
+        ------------------------------------------------------------------------
 \end{lstlisting}
 
 
