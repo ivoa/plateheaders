@@ -133,8 +133,10 @@ syntax and semantics defined here to be compliant.
 In addition to the requirements and recommendations given here, all
 constraints resulting from the various standard documents on FITS apply.
 
-This specification does not use the FITS convention on long
-keywords\todo{ref?}.  However, FITS continuation lines are explicitly
+This specification does not use any of the FITS conventions on long
+keywords.  However, FITS CONTINUE
+cards\footnote{https://fits.gsfc.nasa.gov/registry/continue_keyword.html} 
+are explicitly
 allowed (and encouraged for some of the free text fields).  This should
 no longer cause interoperability problems with FITS libraries in actual
 use in 2022.
