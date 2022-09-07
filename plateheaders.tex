@@ -39,7 +39,7 @@ multiply exposed plates or objective prism spectroscopy.  While this
 metadata structure was being developed together with annotation software
 (pyplates) and a specific digitisation project
 (applause), we hope it is general enough to serve as a lingua franca for
-scanned glass plates.
+the annotation of scans of historical photographic observations.
 
 \end{abstract}
 
@@ -135,7 +135,7 @@ constraints resulting from the various standard documents on FITS apply.
 
 This specification does not use any of the FITS conventions on long
 keywords.  However, FITS CONTINUE
-cards\footnote{https://fits.gsfc.nasa.gov/registry/continue_keyword.html} 
+cards\footnote{\url{https://fits.gsfc.nasa.gov/registry/continue_keyword.html}}
 are explicitly
 allowed (and encouraged for some of the free text fields).  This should
 no longer cause interoperability problems with FITS libraries in actual
@@ -536,7 +536,7 @@ Individual archives should try to be internally consistent in the
 contents of these fields.
 
 \cardname{PLATESZ1} and \cardname{PLATESZ2} represent the dimensions of
-the glass carrier, not of the sensitive area or of the area scanned.
+the glass carrier (or other medium), not of the sensitive area or of the area scanned.
 One therefore cannot repliably compute the pixel density of the scan by
 dividing \cardname{NAXIS1} by \cardname{PLATESZ1} (although this will in
 general yield the right order of magnitude).
