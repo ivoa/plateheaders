@@ -37,8 +37,8 @@ scientific use.  This metadata structure is general enough to cover
 several observational techniques common in the plate area, such as
 multiply exposed plates or objective prism spectroscopy.  While this
 metadata structure was being developed together with annotation software
-(pyplates) and a specific digitisation project
-(applause), we hope it is general enough to serve as a lingua franca for
+(PyPlate) and a specific digitisation project
+(APPLAUSE), we hope it is general enough to serve as a lingua franca for
 the annotation of scans of historical photographic observations.
 
 \end{abstract}
@@ -88,7 +88,7 @@ WFPDB as such.  The direct predecessor of this Note is \citet{paper1},
 which already introduced several of the concepts covered here.
 
 While conformant FITS headers can be written with generic FITS software,
-higher-level interfaces have been written, in particular in the pyplate
+higher-level interfaces have been written, in particular in the PyPlate
 software for calibrating and annotating scans of astronomical plates
 \citep{soft:pyplates}, but also in the general Virtual Observatory
 server suite DaCHS \citep{2014A+C.....7...27D}.
@@ -412,10 +412,12 @@ SITENAME= 'Potsdam-Telegrafenberg' / observatory site name
 SITELONG=            13.064167 / [deg] East longitude of the observatory
 SITELAT =            52.380556 / [deg] latitude of the observatory
 SITEELEV=                  107 / [m] elevation of the observatory
-TELESCOP= 'Zeiss Triplet 15 cm' / telescope name
-TELAPER =                 0.15 / [m] clear aperture of the telescope
-TELFOC  =                  1.5 / [m] focal length of the telescope
-TELSCALE=               137.68 / [arcsec/mm] plate scale of the telescope
+TELESCOP= 'Zeiss Triplet'      / telescope name
+OTA-NAME= '15-cm camera'       / optical tube assembly (OTA)
+OTA-DIAM=                 0.15 / [m] diameter of the OTA
+OTA-APER=                 0.15 / [m] clear aperture of the OTA
+FOCLEN  =                  1.5 / [m] focal length of the OTA
+PLTSCALE=                  137 / [arcsec/mm] plate scale of the OTA
 INSTRUME= '        '           / instrument
 DETNAM  = 'photographic plate' / detector
 METHOD  = 'direct photograph'  / method of observation
@@ -476,10 +478,12 @@ SITENAME= 'Potsdam-Telegrafenberg' / observatory site name
 SITELONG=            13.064167 / [deg] East longitude of the observatory
 SITELAT =            52.380556 / [deg] latitude of the observatory
 SITEELEV=                  107 / [m] elevation of the observatory
-TELESCOP= 'Zeiss Triplet 15 cm' / telescope name
-TELAPER =                 0.15 / [m] clear aperture of the telescope
-TELFOC  =                  1.5 / [m] focal length of the telescope
-TELSCALE=               137.68 / [arcsec/mm] plate scale of the telescope
+TELESCOP= 'Zeiss Triplet'      / telescope name
+OTA-NAME= '15-cm camera'       / optical tube assembly (OTA)
+OTA-DIAM=                 0.15 / [m] diameter of the OTA
+OTA-APER=                 0.15 / [m] clear aperture of the OTA
+FOCLEN  =                  1.5 / [m] focal length of the OTA
+PLTSCALE=                  137 / [arcsec/mm] plate scale of the OTA
 INSTRUME= '        '           / instrument
 DETNAM  = 'photographic plate' / detector
 METHOD  = 'direct photograph, multi-exposure' / method of observation
@@ -755,12 +759,13 @@ SCANRES1=                 2400 / [dpi] scan resolution along axis 1
 SCANRES2=                 2400 / [dpi] scan resolution along axis 2
 PIXSIZE1=              10.5833 / [um] pixel size along axis 1
 PIXSIZE2=              10.5833 / [um] pixel size along axis 2
-SCANSOFT= 'VueScan '           / name of the scanning software
+SCANSOFT= 'VueScan '           / scanning software
 SCANGAM =                  1.0 / scan gamma value
-SCANFOC = 'glass'              / scan focus
+SCANFOC = 'glass   '           / scan focus
 WEDGE   = 'Danes-Picta TG21S'  / type of photometric step-wedge
-DATESCAN= '2011-05-17T10:33:26' / scan date and time
+DATESCAN= '2011-05-17T08:33:26' / scan date and time
 SCANAUTH= 'K. Tsvetkova'       / author of scan
+SCANNOTE= 'Plate rotated 90 degrees' / scan notes
 \end{lstlisting}
 \end{fitsexample}
 
@@ -806,13 +811,14 @@ before they were erased in preparation of the full-resolution scan.
 \begin{fitsexample}{Associated files}
 \begin{lstlisting}
         ------------------------------------------------------------- Data files
-FILENAME= 'POT015_000317.fits' / filename of this file
-FN-WEDGE= 'POT015_000317w.fits' / filename of the wedge scan
+FILENAME= 'POT015_000317.fits' / filename of the plate scan
+FN-SCN1 = 'POT015_000317.fits' / filename of scan 1
+FN-WEDGE= 'POT015_000317_w.fits' / filename of the wedge scan
 FN-PRE  = 'POT015_000317_pre.jpg' / filename of the preview image
 FN-COVER= '        '           / filename of the plate cover image
-FN-LOGB = 'POT015_000317-000334.jpg' / filename of logbook image
+FN-LOG1 = 'ZT-LB01-000317-000334.jpg' / filename of logbook image 1
 ORIGIN  = 'Leibniz-Institut fuer Astrophysik Potsdam (AIP)'
-DATE    = '2013-04-09T12:00:00' / last change of this file
+DATE    = '2022-03-01T07:55:13' / last change of this file
 \end{lstlisting}
 \end{fitsexample}
 
@@ -823,21 +829,21 @@ ignored by readers in general.
 \begin{fitsexample}{Associated files, multiple notebook pages}
 \begin{lstlisting}
         ------------------------------------------------------------- Data files
-FILENAME= 'LA00508x.fits'      / filename of this file
-FN-SCN1 = 'LA00508x.fits'      / filename of scan 1
-FN-SCN2 = 'LA00508y.fits'      / filename of scan 2
+FILENAME= 'LA00508_x.fits'     / filename of the plate scan
+FN-SCN1 = 'LA00508_y.fits'     / filename of scan 1
+FN-SCN2 = 'LA00508_x.fits'     / filename of scan 2
 FN-WEDGE= '        '           / filename of the wedge scan
 FN-PRE  = 'LA00508_pre.jpg'    / filename of the preview image
 FN-COVER= 'LA00508_cover.jpg'  / filename of the plate cover image
-FN-LOGB = 'LA-PV01-LA00501_00510.jpg' / filename of logbook image
-FN-NTB1 = 'LA-LB04-1916-10-18a.jpg' / filename of notebook image 1
-FN-NTB2 = 'LA-LB04-1916-10-18b.jpg' / filename of notebook image 2
-FN-NTB3 = 'LA-LB04-1916-10-18c.jpg' / filename of notebook image 3
-FN-NTB4 = 'LA-LB04-1916-10-18d.jpg' / filename of notebook image 4
-FN-NTB5 = 'LA-LB04-1916-10-18e.jpg' / filename of notebook image 5
-FN-NTB6 = 'LA-LB04-1916-10-18f.jpg' / filename of notebook image 6
-ORIGIN  = 'Hamburger Sternwarte' /
-DATE    = '2013-12-12T13:42:00' / last change of this file
+FN-LOG1 = 'LA-PV01-LA00501_00510.jpg' / filename of logbook image 1
+FN-LOG2 = 'LA-LB04-1916-10-18a.jpg' / filename of logbook image 2
+FN-LOG3 = 'LA-LB04-1916-10-18b.jpg' / filename of logbook image 3
+FN-LOG4 = 'LA-LB04-1916-10-18c.jpg' / filename of logbook image 4
+FN-LOG5 = 'LA-LB04-1916-10-18d.jpg' / filename of logbook image 5
+FN-LOG6 = 'LA-LB04-1916-10-18e.jpg' / filename of logbook image 6
+FN-LOG7 = 'LA-LB04-1916-10-18f.jpg' / filename of logbook image 7
+ORIGIN  = 'Hamburger Sternwarte (Universitaet Hamburg)'
+DATE    = '2021-12-14T17:43:44' / last change of this file
 \end{lstlisting}
 \end{fitsexample}
 
@@ -886,25 +892,25 @@ intended to be consumable by machines.
 
 \begin{fitsexample}{Header Metadata}
 \begin{lstlisting}
-        --------------------------------------------------- Modification history
-HISTORY Header written with PyPlates at 2013-12-18T12:00:00
-HISTORY WCS modified by T. Tuvikene (AIP) at 2013-12-19T12:00:00
+        ---------------------------------------------------------------- Licence
+LICENCE = 'https://creativecommons.org/publicdomain/zero/1.0/'
         ------------------------------------------------------- Acknowledgements
-COMMENT The digitization of this plate was funded by the German Research
-COMMENT Foundation (DFG) grant STE: 710/6-1,20.11.2009 and partially by the
-COMMENT grants of the Bulgarian Ministry of Education and Science
-COMMENT DO-02-273/275,18.12.2009. The 2011 May-June stay of K. Tsvetkova at AIP
-COMMENT was funded by DO-02-275 MON.
-COMMENT
-COMMENT Publications based on this digitized photographic plate are requested to
-COMMENT include the following acknowledgement.
-COMMENT
-COMMENT Based on photographic data of the Leibniz-Institut fuer Astrophysik
-COMMENT Potsdam (AIP). The Kapteyn Selected Areas Survey was obtained with the
-COMMENT 80-cm Great Refractor and the 15-cm Zeiss Triplet telescope at
-COMMENT Potsdam-Telegrafenberg in 1910-1933. The project of plate digitization
-COMMENT was funded by the grants of the German Research Foundation (DFG) and the
-COMMENT Bulgarian Ministry of Education and Science.
+COMMENT The digitized image is provided by Leibniz Institute for Astrophysics
+COMMENT Potsdam (AIP). Funding for APPLAUSE has been provided by DFG (German
+COMMENT Research Foundation), Leibniz Institute for Astrophysics Potsdam (AIP),
+COMMENT Dr. Karl Remeis-Sternwarte, Bamberg (Friedrich-Alexander-Universitaet
+COMMENT Erlangen-Nuernberg), Hamburger Sternwarte (Unversity Hamburg) and Tartu
+COMMENT Observatory (University of Tartu). We thank Thueringer Landessternwarte
+COMMENT Tautenburg (TLS), Astrophysikalisches Institut und
+COMMENT Universitaetsternwarte Jena (University of Jena) and the Vatican
+COMMENT Observatory for providing digitized Material for inclusion into the
+COMMENT archive.
+        ---------------------------------------------------------------- History
+HISTORY Header updated with PyPlate v4.0.12 at 2022-03-01T07:53:29
+HISTORY WCS added with PyPlate v4.0.12 at 2022-03-01T07:55:13
+        -------------------------------------------------------------- Checksums
+CHECKSUM= 'EUWaGSUXESUaESUU'   / HDU checksum updated 2022-03-01T08:55:18
+DATASUM = '2591757796'         / data unit checksum updated 2022-03-01T08:55:18
 \end{lstlisting}
 \end{fitsexample}
 
@@ -951,19 +957,19 @@ PLTSCALE=                  137 / [arcsec/mm] plate scale of the OTA
 INSTRUME= '        '           / instrument
 DETNAM  = 'photographic plate' / detector
 METHOD  = 'direct photograph'  / method of observation
-FILTER  = '        '           / filter type
+FILTER  = 'none    '           / filter type
 PRISM   = '        '           / objective prism
 PRISMANG= '        '           / prism angle "deg:min"
 DISPERS =                      / [Angstrom/mm] dispersion
 GRATING = '        '           / grating
-FOCUS   =                 32.2 / focus position
+FOCUS   =                 32.2 / focus value
 TEMPERAT=                 21.8 / [deg C] air temperature (degrees Celsius)
-CALMNESS= '        '           / sky calmness (scale 1-5)
-SHARPNES= '        '           / sky sharpness (scale 1-5)
-TRANSPAR= '        '           / sky transparency (scale 1-5)
-SKYCOND = '        '           / other sky conditions
-OBSERVER= 'W. Muench, K. Bottlinger' / observer name
-OBSNOTES= '        '           / observer notes
+CALMNESS= '2-3     '           / sky calmness (scale 1-5)
+SHARPNES= '2       '           / sky sharpness (scale 1-5)
+TRANSPAR= '1-2     '           / sky transparency (scale 1-5)
+SKYCOND = 'moonlight'          / sky conditions
+OBSERVER= 'W. Muench'          / observer name
+OBSNOTES= 'bad guiding'        / observer notes
 NOTES   = 'SA 87 = Kapteyn Selected Area 87' / miscellaneous notes
 BIBCODE = '        '           / bibcode of a related paper
         ----------------------------------------------------- Photographic plate
@@ -999,13 +1005,13 @@ SCANRES1=                 2400 / [dpi] scan resolution along axis 1
 SCANRES2=                 2400 / [dpi] scan resolution along axis 2
 PIXSIZE1=              10.5833 / [um] pixel size along axis 1
 PIXSIZE2=              10.5833 / [um] pixel size along axis 2
-SCANSOFT= '        '           / scanning software
-SCANGAM =                      / scan gamma value
-SCANFOC = '        '           / scan focus
-WEDGE   = '        '           / type of photometric step-wedge
+SCANSOFT= 'VueScan '           / scanning software
+SCANGAM =                  1.0 / scan gamma value
+SCANFOC = 'glass   '           / scan focus
+WEDGE   = 'Danes-Picta TG21S'  / type of photometric step-wedge
 DATESCAN= '2011-05-17T08:33:26' / scan date and time
 SCANAUTH= 'K. Tsvetkova'       / author of scan
-SCANNOTE= '        '           / scan notes
+SCANNOTE= 'Plate rotated 90 degrees' / scan notes
         ------------------------------------------------------------- Data files
 FILENAME= 'POT015_000317.fits' / filename of the plate scan
 FN-SCN1 = 'POT015_000317.fits' / filename of scan 1
