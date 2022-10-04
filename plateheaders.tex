@@ -3,7 +3,7 @@
 \usepackage[textwidth=14cm,a4paper]{geometry}
 \usepackage{longtable}
 \input tthdefs
-\lstset{basicstyle=\ttfamily\footnotesize,flexiblecolumns=True}
+\lstset{basicstyle=\ttfamily\footnotesize,basewidth=4.8pt}
 \usepackage{todonotes}
 
 \definecolor{keyword}{rgb}{0.118,0.2,0.618}
@@ -918,6 +918,10 @@ DATASUM = '2591757796'         / data unit checksum updated 2022-03-01T08:55:18
 \section{Complete sample header}
 \label{sect:samplehdr}
 
+The following example contains many cards without a value, which we are
+keeping here for completeness.  Headers on released data should not
+include cards with empty values (see sect.~\ref{sect:format} on such
+cards).
 
 \begin{lstlisting}
 SIMPLE  =                    T / file conforms to FITS standard
