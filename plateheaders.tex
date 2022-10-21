@@ -26,7 +26,7 @@
 \previousversion{This is the first public release}
 
 \newenvironment{fitsexample}[1]
-{\bigskip\noindent\textbf{Example}\\\textit{(#1\smallskip)}}
+{\bigskip\noindent\textbf{Example}\\\textit{(#1)\smallskip}}
 {\medskip}
 
 \begin{document}
@@ -822,8 +822,9 @@ DATE    = '2022-03-01T07:55:13' / last change of this file
 \end{lstlisting}
 \end{fitsexample}
 
-A blank value -- as in \cardname{FN-COVER} in this example -- should be
-ignored by readers in general.
+As stated above, giving a blank values -- as in \cardname{FN-COVER} in
+this example -- is the less preferred alternative to leaving out a card
+without a value.
 
 
 \begin{fitsexample}{Associated files, multiple notebook pages}
@@ -887,7 +888,19 @@ original places (relative to the header card that follows them) when
 re-writing a header.
 
 In particular, use comment cards for acknowledgements.  None of this is
-intended to be consumable by machines.
+intended to be consumable by machines, except possibly the LICENCE URI.
+
+\begin{inlinetable}
+\footnotesize
+\begin{tabular}{llp{0.5\textwidth}}
+\sptablerule
+\textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
+\sptablerule
+LICENCE &string    &A URI pointing to conditions of use.  Prefer a
+URI widely known if possible, and if you use a licence (rather than, say
+CC0), specify the copyright holder in free text.\\
+\end{tabular}
+\end{inlinetable}
 
 
 \begin{fitsexample}{Header Metadata}
@@ -908,9 +921,6 @@ COMMENT archive.
         ---------------------------------------------------------------- History
 HISTORY Header updated with PyPlate v4.0.12 at 2022-03-01T07:53:29
 HISTORY WCS added with PyPlate v4.0.12 at 2022-03-01T07:55:13
-        -------------------------------------------------------------- Checksums
-CHECKSUM= 'EUWaGSUXESUaESUU'   / HDU checksum updated 2022-03-01T08:55:18
-DATASUM = '2591757796'         / data unit checksum updated 2022-03-01T08:55:18
 \end{lstlisting}
 \end{fitsexample}
 
