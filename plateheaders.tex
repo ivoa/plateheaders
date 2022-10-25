@@ -63,7 +63,10 @@ infrastructure that enable VO applications.
 
 This document  proposes FITS \citep{std:FITS} header keywords, value
 types and an overall layout for storing metadata of digitized
-astronomical photographic plates. The header format is intended to suit
+astronomical photographic plates, where we use ``plates'' here to
+include images on both glass or film.
+
+The header format is intended to suit
 various cases: direct images with single exposures, multiple exposures
 of a single object/field, exposures of different objects/fields,
 objective-prism spectra, etc.
@@ -321,7 +324,9 @@ The notion of the ``optical tube assembly'' (OTA) is used here because
 in several cases multiple tubes shared a single mounting; calling each of
 these tubes a separate ``telescope'' is not in line with what the word
 was used for historically.  We hence decided to use a new, dedicated
-term here.
+term here.  Other examples for where this notion helps include
+diaphragms used to stop down the aperture or instruments with multiple
+secondaries.
 
 The values in \cardname{TMS-ORIG}, \cardname{TME-ORIG},
 \cardname{TMS-ORn}, and \cardname{TMS-ORn} should have the format
