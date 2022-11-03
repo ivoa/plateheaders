@@ -314,6 +314,8 @@ CALMNESS  &string  &
 SHARPNES  &string  &Sharpness (seeing conditions), scale 1–5\\
 TRANSPAR  &string  &
   Transparency, scale 1–5\\
+SEEING    &string  &Quantitative statement on the seeing, typically as
+  an angle (include the unit in that case)\\
 SKYCOND   &string  &Notes on sky conditions from logbook\\
 OBSERVER  &string  &(FITS Standard) Observer name\\
 OBSNOTES  &string  &Observer notes from logbook\\
@@ -398,6 +400,12 @@ objective grating'' as appropriate.
 plate'', but other media are conceivable, in particular ``film''.
 Please avoid being more specific here and rather do finer-grained
 descriptions \cardname{EMULSION} or \cardname{OAT-NAME}.
+
+For \cardname{CALMNESS}, \cardname{SHARPNES}, and \cardname{TRANSPAR}, a
+numeric scale of 1-5 is used here, where 1 is best and 5 is worst.
+These keywords are probably too specific and may be removed in future
+versions of this document.  Use free-text in \cardname{SKYCOND} instead
+or, where applicable, \cardname{SEEING}.
 
 \begin{fitsexample}{Observation data, multiple exposures}
 \begin{lstlisting}
@@ -1144,6 +1152,8 @@ up to version 1.0 of the IVOA Note.
 coordinates.
 \item \cardname{DETNAM} is now explicitly allowed to be something other
 than ``photographic plate''.
+\item New header \cardname{SEEING}, sort-of deprecating
+\cardname{CALMNESS}, \cardname{SHARPNES}, and \cardname{TRANSPAR}.
 \end{itemize}
 
 \bibliography{ivoatex/ivoabib,ivoatex/docrepo,local}
