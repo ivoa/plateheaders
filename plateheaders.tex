@@ -826,6 +826,7 @@ be found.
 \textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
 FILENAME &string    &Filename of the plate scan (this file)\\
+PID      &string    &A permanent identifier for the plate\\
 FN-SCNn  &string    &
   Filename of the $n$-th scan of the same plate\\
 FN-WEDGE &string    &Filename of the wedge scan\\
@@ -847,6 +848,11 @@ DATE     &string    &
 representation -- typically, a JPEG image.  Within the APPLAUSE project,
 this low-resolution image was used to document annotations on the plates
 before they were erased in preparation of the full-resolution scan.
+
+\cardname{PID} should be used if a plate has a permanent identifier of
+some sort, as for instance a Digital Object Identifier (DOI).  Prefer
+the HTTP URI form (e.g., \url
+{https://doi.org/10.1876/plate/dr.3s/006_0003}) if possible.
 
 
 \begin{fitsexample}{Associated files}
@@ -1170,6 +1176,7 @@ than ``photographic plate''.
 \cardname{CALMNESS}, \cardname{SHARPNES}, and \cardname{TRANSPAR}.
 \item New header \cardname{PRE-PROC} for indicating scrubbing of plates
 or the like.
+\item New header \cardname{PID}.
 \end{itemize}
 
 \bibliography{ivoatex/ivoabib,ivoatex/docrepo,local}
