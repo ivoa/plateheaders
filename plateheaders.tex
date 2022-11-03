@@ -562,6 +562,8 @@ time)\\
 PQUALITY &string &Free text on the quality of the plate\\
 PLATNOTE &string &Other notes about the plate (free text; e.g., on
 availability or historical relevance)\\
+PRE-PROC  &string &Free text on processing of the plate before
+scanning\\
 \end{tabular}
 \end{inlinetable}
 
@@ -576,6 +578,10 @@ the glass carrier (or other medium), not of the sensitive area or of the area sc
 One therefore cannot repliably compute the pixel density of the scan by
 dividing \cardname{NAXIS1} by \cardname{PLATESZ1} (although this will in
 general yield the right order of magnitude).
+
+Several scanning projects remove markings on the plates before
+scanning.  These should write ``plate markings removed'' in a
+\cardname{PRE-PROC} header.
 
 \begin{fitsexample}{Plate metadata}
 \begin{lstlisting}
@@ -1154,6 +1160,8 @@ coordinates.
 than ``photographic plate''.
 \item New header \cardname{SEEING}, sort-of deprecating
 \cardname{CALMNESS}, \cardname{SHARPNES}, and \cardname{TRANSPAR}.
+\item New header \cardname{PRE-PROC} for indicating scrubbing of plates
+or the like.
 \end{itemize}
 
 \bibliography{ivoatex/ivoabib,ivoatex/docrepo,local}

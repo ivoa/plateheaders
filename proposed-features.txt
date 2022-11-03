@@ -1,0 +1,24 @@
+This is a list of headers that have been proposed but that were not
+accepted *so far*.  If adopters have requirements like this, let the
+editors know (at datacp at ivoa.net).  It's rather likely that we would
+extend the set of headers accordingly.
+
+(1) Computed FWHM (in Group 4)
+
+The problem here is the definition given frequently rather imperfect
+optics and a highly non-linear detector.  But if someone were to define
+this properly, that would certainly be a valuable addition
+
+
+(2) Markup for extra series
+
+This is where people have plates with multiple numbers, e.g.,
+observatory number and CdC numbers, or a "Halley plate set" with an
+independent numbering, or the Wolf-Palisa plates taken at the Bruce
+refactor.
+
+It would be nice if we could give these alternative identifiers.  This
+could be using SERIES1 SERIES2... and then PLATENO1, PLATENO2...  But
+it's unclear at this point if that is worth the effort.  Perhaps just an
+ALT-ID header containing free text is enough?  Will such a thing ever
+need to be looked at by a machine?
