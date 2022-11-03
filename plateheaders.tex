@@ -240,6 +240,8 @@ RA-ORIG   &string  &
   Original recorded right ascension of the telescope pointing (plate center)\\
 DEC-ORIG  &string  &
   Original recorded declination of the telescope pointing (plate center)\\
+EQ-ORIG   &string  &
+  Equinox of equatorial coordinates in RA-ORIG and DEC-ORIG\\
 COORFLAG  &string  &
   Quality flag of the recorded coordinates (right ascension and
   declination): 'error', 'missing', 'uncertain'.  Do not give for good
@@ -348,6 +350,13 @@ exposure times of all sub-exposures are to be given with the
 the (relatively rare) cases of exposures with multiple focus values.
 For such plates, no \cardname{FOCUS} is given but only
 \cardname{FOCUS$n$}.
+
+\cardname{EQ-ORIG} should give the equinox of the coordinates in
+\cardname{RA-ORIG}, \cardname{DEC-ORIG}.  If given, it must be in
+years, with a B or J for Besselian or Julian years (as in J2000.0 or
+B1950.0).  A plain floating point value is legal, too, and indicates
+an unnknown year convention.  \cardname{RA-OR$n$} and
+\cardname{DEC-OR$n$} can be assumed to share \cardname{EQ-ORIG}.
 
 When multiple \cardname{OBJECT$n$} and \cardname{TMS-OR$n$} cards are
 present, the relationship of exposures and target objects is not defined
@@ -1118,10 +1127,15 @@ DATASUM = '2591757796'         / data unit checksum updated 2022-03-01T08:55:18
 \appendix
 \section{Changes from Previous Versions}
 
-No previous versions yet.  
-% these would be subsections "Changes from v. WD-..."
-% Use itemize environments.
+\subsection{Changes from APPLAUSE}
 
+The following changes were made during an informal review phase leading
+up to version 1.0 of the IVOA Note.
+
+\begin{itemize}
+\item New header \cardname{EQ-ORIG} for giving the equinox of the
+coordinates.
+\end{itemize}
 
 \bibliography{ivoatex/ivoabib,ivoatex/docrepo,local}
 
