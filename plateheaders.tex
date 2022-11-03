@@ -294,7 +294,7 @@ OTA-APER  &float   &Clear aperture of the OTA [m]\\
 FOCLEN    &float   &Focal length of the telescope [m]\\
 PLTSCALE  &float   &Plate scale of the telescope [arcsec/mm]\\
 INSTRUME  &string  &(FITS Standard) Instrument name\\
-DETNAM    &string  &Detector name; in this case, constant 'photographic plate'\\
+DETNAM    &string  &Detector name; rather typcially, 'photographic plate'\\
 METHOD    &string  &
   Observation method.  See below for values allowed.\\
 FILTER    &string  &Free text designation of a filter (if used)\\
@@ -393,6 +393,11 @@ If a grating has been used, additional freetext should be given in
 \cardname{GRATING}; this could be text like  ``Coarse objective
 grating'' (as used for bright-star photometry) or ``Spectroscopy
 objective grating'' as appropriate.
+
+\cardname{DETNAME} would typcially be the fixed string ``photographic
+plate'', but other media are conceivable, in particular ``film''.
+Please avoid being more specific here and rather do finer-grained
+descriptions \cardname{EMULSION} or \cardname{OAT-NAME}.
 
 \begin{fitsexample}{Observation data, multiple exposures}
 \begin{lstlisting}
@@ -1127,14 +1132,18 @@ DATASUM = '2591757796'         / data unit checksum updated 2022-03-01T08:55:18
 \appendix
 \section{Changes from Previous Versions}
 
-\subsection{Changes from APPLAUSE}
+\subsection{Changes from APPLAUSE's Header List}
 
-The following changes were made during an informal review phase leading
+The following changes versus the header list at 
+\url{https://www.plate-archive.org/applause/wiki/fits-header-format-dr2/}
+were made during an informal review phase leading
 up to version 1.0 of the IVOA Note.
 
 \begin{itemize}
 \item New header \cardname{EQ-ORIG} for giving the equinox of the
 coordinates.
+\item \cardname{DETNAM} is now explicitly allowed to be something other
+than ``photographic plate''.
 \end{itemize}
 
 \bibliography{ivoatex/ivoabib,ivoatex/docrepo,local}
