@@ -841,6 +841,8 @@ ORIGIN   &string    &
   (FITS Standard) Institute responsible for creating the FITS file\\
 DATE     &string    &
   (FITS Standard) Date and time of the last change of the file \\
+SVC-URI  &string    &
+  A URI of a service that will (probably) serve the file.\\
 \end{tabular}
 \end{inlinetable}
 
@@ -854,6 +856,14 @@ some sort, as for instance a Digital Object Identifier (DOI).  Prefer
 the HTTP URI form (e.g., \url
 {https://doi.org/10.1876/plate/dr.3s/006_0003}) if possible.
 
+While there are no guarantees that any of the artefacts mentioned here
+can actually be retrieved, operators can give a URI of a networked
+service that at least at one point has served the data in
+\cardname{SVC-URI}.  This specification does not say anything about what
+URIs these are (obvious candidates include ftp, http, of Virtual
+Observatory ivo) or what sort of structure will be found at this URI;
+for instance, operators might choose to point to their ObsCore 
+\citep{2017ivoa.spec.0509L} service.
 
 \begin{fitsexample}{Associated files}
 \begin{lstlisting}
@@ -892,6 +902,7 @@ FN-LOG6 = 'LA-LB04-1916-10-18e.jpg' / filename of logbook image 6
 FN-LOG7 = 'LA-LB04-1916-10-18f.jpg' / filename of logbook image 7
 ORIGIN  = 'Hamburger Sternwarte (Universitaet Hamburg)'
 DATE    = '2021-12-14T17:43:44' / last change of this file
+SVC-URI = 'ivo://www.plate-archive.org/tap'
 \end{lstlisting}
 \end{fitsexample}
 
@@ -1177,6 +1188,8 @@ than ``photographic plate''.
 \item New header \cardname{PRE-PROC} for indicating scrubbing of plates
 or the like.
 \item New header \cardname{PID}.
+\item New header \cardname{SVC-URI} to associate network services with
+the file names.
 \end{itemize}
 
 \bibliography{ivoatex/ivoabib,ivoatex/docrepo,local}
