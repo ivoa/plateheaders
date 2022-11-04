@@ -15,7 +15,7 @@ this properly, that would certainly be a valuable addition
 This is where people have plates with multiple numbers, e.g.,
 observatory number and CdC numbers, or a "Halley plate set" with an
 independent numbering, or the Wolf-Palisa plates taken at the Bruce
-refactor.
+refractor.
 
 It would be nice if we could give these alternative identifiers.  This
 could be using SERIES1 SERIES2... and then PLATENO1, PLATENO2...  But
