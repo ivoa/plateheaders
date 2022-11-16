@@ -366,10 +366,6 @@ by this specification; it can mean one target object per exposure,
 multiple exposures of the same set of target objects, or any combination
 thereof.
 
-\cardname{CALMNESS} and \cardname{SHARPNESS} would probably both map to
-a modern seeing value; they were introduced to tell apart ``Ruhe'' and
-``Schärfe'' that are common in German log books.
-
 \cardname{OBJTYPE} and \cardname{OBJTYP$n$}, where present and
 non-blank, has to contain one of the following values (taken from the
 WFPDB):
@@ -400,6 +396,10 @@ objective grating'' as appropriate.
 plate'', but other media are conceivable, in particular ``film''.
 Please avoid being more specific here and rather do finer-grained
 descriptions \cardname{EMULSION} or \cardname{OAT-NAME}.
+
+\cardname{CALMNESS} and \cardname{SHARPNESS} would probably both map to
+a modern seeing value; they were introduced to tell apart ``Ruhe'' and
+``Schärfe'' that are common in German log books.
 
 For \cardname{CALMNESS}, \cardname{SHARPNES}, and \cardname{TRANSPAR}, a
 numeric scale of 1-5 is used here, where 1 is best and 5 is worst.
@@ -574,7 +574,7 @@ Individual archives should try to be internally consistent in the
 contents of these fields.
 
 \cardname{EMULSION} may also contain information on whether a plate
-was backde, baked or otherwise treated to enhance sensitivity.
+was backed, baked or otherwise treated to enhance sensitivity.
 
 \cardname{PLATESZ1} and \cardname{PLATESZ2} represent the dimensions of
 the glass carrier (or other medium), not of the sensitive area or of the area scanned.
@@ -764,6 +764,7 @@ be automatically processed by machines.
 \sptablerule
 \textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
+SCANNER  &string  &Scanner hardware used\\
 SCANRES1 &integer &Scan resolution along axis 1 [dpi]\\
 SCANRES2 &integer &Scan resolution along axis 2 [dpi]\\
 PIXSIZE1 &float   &Pixel size along axis 1 [$\mu\rm m$]\\
@@ -826,7 +827,7 @@ be found.
 \textbf{Keyword}&\textbf{Type}&\textbf{Description}\\
 \sptablerule
 FILENAME &string    &Filename of the plate scan (this file)\\
-PID      &string    &A permanent identifier for the plate\\
+PID      &string    &A persistent identifier for the plate\\
 FN-SCNn  &string    &
   Filename of the $n$-th scan of the same plate\\
 FN-WEDGE &string    &Filename of the wedge scan\\
@@ -860,7 +861,7 @@ While there are no guarantees that any of the artefacts mentioned here
 can actually be retrieved, operators can give a URI of a networked
 service that at least at one point has served the data in
 \cardname{SVC-URI}.  This specification does not say anything about what
-URIs these are (obvious candidates include ftp, http, of Virtual
+URIs these are (obvious candidates include ftp, http, or Virtual
 Observatory ivo) or what sort of structure will be found at this URI;
 for instance, operators might choose to point to their ObsCore 
 \citep{2017ivoa.spec.0509L} service.
@@ -937,8 +938,8 @@ LONPOLE = 0.0 / native longitude of the celestial pole
 \end{fitsexample}
 
 The FITS WCS convention admits up to 27 reductions in a single header.
-This specification does not posit any relationship between these
-reductions and the multiple exposures from group~1, as these may be
+This specification does not require any specific relation between these
+reductions and the multiple exposures from group~1, as this may be
 arbitrarily complex.  In case such a relationship can easily be given,
 use human-readable comments.
 
@@ -1193,6 +1194,9 @@ the file names.
 \item New header \cardname{LICENCE}
 \item Renamed TELx headers to OTAx headers in order to clarify that it
 is not just the tube this is about.
+\item Removed diffs to ``paper 1'' (i.e., Kirov et al), which at
+this point are irrelevant.
+\item Updated example to what is actually in use in Applause DR4.
 \end{itemize}
 
 \bibliography{ivoatex/ivoabib,ivoatex/docrepo,local}

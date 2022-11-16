@@ -22,3 +22,10 @@ could be using SERIES1 SERIES2... and then PLATENO1, PLATENO2...  But
 it's unclear at this point if that is worth the effort.  Perhaps just an
 ALT-ID header containing free text is enough?  Will such a thing ever
 need to be looked at by a machine?
+
+
+(3) Extra computed metadata
+
+In group 4, to make it easier to assess what a plate may be like, adding
+AIRMASS, HA (hour angle), and ZD (zenith distance) at the mean epoch
+(of the main observation?) might be useful.

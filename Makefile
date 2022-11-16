@@ -8,7 +8,7 @@ DOCNAME = plateheaders
 DOCVERSION = 1.0
 
 # Publication date, ISO format; update manually for "releases"
-DOCDATE = 2022-08-30
+DOCDATE = 2022-11-14
 
 # What is it you're writing: NOTE, WD, PR, REC, PEN, or EN
 DOCTYPE = NOTE
